@@ -18,7 +18,11 @@ com.hailang
 │   ├── utils/             # BeanUtils (copy / copyList), Result, ResultUtils
 │   ├── exception/
 │   │   └── GlobalExceptionHandler.java
-│   └── MyBatisPlusConfig.java
+│   ├── interceptor/
+│   │   └── TokenInterceptor.java
+│   ├── AuthContext.java
+│   ├── MyBatisPlusConfig.java
+│   └── WebMvcConfig.java
 ├── controller/
 │   ├── req/                 # @Schema 接口入参
 │   └── resp/                # @Schema 接口出参
@@ -56,7 +60,6 @@ DAO:        dto / entity 均可传入
 ## Conventions
 - **Lombok**: `@Data` on entities/DTOs, `@RequiredArgsConstructor` on controllers.
 - **No tests, no CI, no linter, no typecheck** configured.
-- `HelloController.java` at `GET /hello` is a legacy test endpoint.
 - `Rule.desc` is a SQL reserved word — backtick-quoted (`\`desc\``) in XML.
 - Controller paths use camelCase (e.g. `/sysUser`).
 - DDL 建表脚本在 `src/main/resources/database/init.sql`。
