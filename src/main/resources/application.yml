@@ -2,22 +2,5 @@ server:
   port: 8080
 
 spring:
-  datasource:
-    url: jdbc:mysql://192.168.31.100:3306/attend?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root123
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  data:
-    redis:
-      host: 192.168.31.100
-      port: 6379
-      password: 123456
-      database: 0
-
-mybatis-plus:
-  mapper-locations: classpath:com/hailang/dao/*.xml
-  type-aliases-package: com.hailang.entity
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  profiles:
+    active: dev
