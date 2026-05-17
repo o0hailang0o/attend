@@ -54,4 +54,6 @@ DAO:        dto / entity 均可传入
 - `HelloController.java` at `GET /hello` is a legacy test endpoint.
 - `Rule.desc` is a SQL reserved word — backtick-quoted (`\`desc\``) in XML.
 - Controller paths use camelCase (e.g. `/sysUser`).
+- DDL 建表脚本在 `src/main/resources/database/init.sql`。
+- `sys_user.uuid` 是业务主键，API 增删改查优先用 uuid 而非 id 定位用户。
 - Bean 复制统一用 `com.hailang.config.utils.BeanUtils`（基于 Jackson `convertValue`）。

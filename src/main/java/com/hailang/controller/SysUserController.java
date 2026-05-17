@@ -36,10 +36,10 @@ public class SysUserController {
         return sysUserService.list();
     }
 
-    @Operation(summary = "根据ID查询用户")
-    @GetMapping("/{id}")
-    public SysUser getById(@PathVariable Long id) {
-        return sysUserService.getById(id);
+    @Operation(summary = "根据业务主键查询用户")
+    @GetMapping("/{uuid}")
+    public SysUser getByUuid(@PathVariable String uuid) {
+        return sysUserService.getByUuid(uuid);
     }
 
     @Operation(summary = "新增用户")
@@ -54,9 +54,9 @@ public class SysUserController {
         return sysUserService.updateById(sysUser);
     }
 
-    @Operation(summary = "删除用户")
-    @DeleteMapping("/{id}")
-    public boolean remove(@PathVariable Long id) {
-        return sysUserService.removeById(id);
+    @Operation(summary = "根据业务主键删除用户")
+    @DeleteMapping("/{uuid}")
+    public boolean removeByUuid(@PathVariable String uuid) {
+        return sysUserService.removeByUuid(uuid);
     }
 }
