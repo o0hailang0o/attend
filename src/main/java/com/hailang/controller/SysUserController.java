@@ -20,7 +20,7 @@ import java.util.List;
 
 @Tag(name = "系统用户")
 @RestController
-@RequestMapping("/sysUser")
+@RequestMapping("/sysuser")
 @RequiredArgsConstructor
 public class SysUserController {
 

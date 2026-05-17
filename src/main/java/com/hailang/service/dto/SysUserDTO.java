@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class SysUserDTO {
     private String uuid;
     private String name;
-    private String accout;
+    private String account;
     private String nickName;
     private Integer gender;
     private String workNum;

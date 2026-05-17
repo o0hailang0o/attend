@@ -15,7 +15,7 @@ public class SysUserResp {
     private String name;
 
     @Schema(description = "账号")
-    private String accout;
+    private String account;
 
     @Schema(description = "昵称")
     private String nickName;

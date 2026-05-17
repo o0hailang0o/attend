@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "登录请求")
 public class LoginReq {
     @Schema(description = "账号")
-    private String accout;
+    private String account;
 
     @Schema(description = "密码")
     private String password;

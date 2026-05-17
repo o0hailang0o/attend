@@ -74,7 +74,7 @@ class SysUserControllerTest {
 
     @Test
     void testLogin() throws Exception {
-        String body = "{\"accout\":\"admin\",\"password\":\"123456\"}";
+        String body = "{\"account\":\"admin\",\"password\":\"123456\"}";
         mockMvc.perform(post("/sysUser/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))

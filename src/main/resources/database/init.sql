@@ -2,7 +2,7 @@ CREATE TABLE sys_user (
     id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
     uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT 'uuid',
     name        VARCHAR(32)  NOT NULL                     COMMENT '姓名',
-    accout      VARCHAR(32)  NOT NULL                     COMMENT '账号',
+    account      VARCHAR(32)  NOT NULL                     COMMENT '账号',
     password    VARCHAR(1000) NOT NULL                    COMMENT '密码',
     nick_name   VARCHAR(32)                                COMMENT '昵称',
     gender      INT(10)      NOT NULL DEFAULT 1           COMMENT '性别',

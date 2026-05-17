@@ -25,7 +25,7 @@ public class SysUser {
     private String name;
 
     @Schema(description = "账号")
-    private String accout;
+    private String account;
 
     @Schema(description = "密码(MD5加密)")
     private String password;

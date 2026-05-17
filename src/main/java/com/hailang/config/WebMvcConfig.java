@@ -34,7 +34,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new TokenInterceptor(stringRedisTemplate, objectMapper))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/sysUser/login",
+                        "/sysuser/login",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/attend/**"

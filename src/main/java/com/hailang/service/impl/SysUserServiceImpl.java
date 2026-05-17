@@ -43,7 +43,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     public LoginResultDTO login(LoginDTO dto) {
         SysUser user = baseMapper.selectOne(
                 new LambdaQueryWrapper<SysUser>()
-                        .eq(SysUser::getAccout, dto.getAccout())
+                        .eq(SysUser::getAccount, dto.getAccount())
         );
         if (user == null) {
             throw new RuntimeException("用户不存在");

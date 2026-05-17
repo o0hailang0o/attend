@@ -13,7 +13,7 @@ public class LoginResp {
     private Long userId;
 
     @Schema(description = "账号")
-    private String accout;
+    private String account;
 
     @Schema(description = "姓名")
     private String name;
