@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Schema(description = "系统用户")
 public class SysUser {
     @TableId(type = IdType.AUTO)
-    @Schema(description = "主键")
+    @Schema(description = "自增主键(内部)")
     private Long id;
 
     @Schema(description = "用户名")
@@ -33,6 +33,9 @@ public class SysUser {
 
     @Schema(description = "状态 0-禁用 1-启用")
     private Integer status;
+
+    @Schema(description = "业务主键")
+    private String uuid;
 
     @Schema(description = "登录令牌")
     private String token;
