@@ -6,6 +6,7 @@ import lombok.Data;
 public class LoginResultDTO {
     private String token;
     private Long userId;
-    private String username;
-    private String realName;
+    private String accout;
+    private String name;
+    private String uuid;
 }

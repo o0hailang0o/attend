@@ -12,9 +12,12 @@ public class LoginResp {
     @Schema(description = "用户ID")
     private Long userId;
 
-    @Schema(description = "用户名")
-    private String username;
+    @Schema(description = "账号")
+    private String accout;
 
-    @Schema(description = "真实姓名")
-    private String realName;
+    @Schema(description = "姓名")
+    private String name;
+
+    @Schema(description = "业务主键")
+    private String uuid;
 }

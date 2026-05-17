@@ -1,38 +1,58 @@
 CREATE TABLE sys_user (
-    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键',
-    uuid        VARCHAR(32)  NOT NULL UNIQUE              COMMENT '业务主键',
-    username    VARCHAR(50)  NOT NULL                     COMMENT '用户名',
-    password    VARCHAR(64)  NOT NULL                     COMMENT '密码(MD5)',
-    real_name   VARCHAR(50)                                COMMENT '真实姓名',
-    email       VARCHAR(100)                               COMMENT '邮箱',
-    phone       VARCHAR(20)                                COMMENT '手机号',
-    status      TINYINT      DEFAULT 1                    COMMENT '状态 0-禁用 1-启用',
-    token       VARCHAR(64)                                COMMENT '登录令牌',
-    create_time DATETIME                                   COMMENT '创建时间',
-    update_time DATETIME                                   COMMENT '更新时间'
+    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT 'uuid',
+    name        VARCHAR(32)  NOT NULL                     COMMENT '姓名',
+    accout      VARCHAR(32)  NOT NULL                     COMMENT '账号',
+    password    VARCHAR(1000) NOT NULL                    COMMENT '密码',
+    nick_name   VARCHAR(32)                                COMMENT '昵称',
+    gender      INT(10)      NOT NULL DEFAULT 1           COMMENT '性别',
+    work_num    VARCHAR(32)                                COMMENT '工号',
+    level       VARCHAR(16)                                COMMENT '级别',
+    type        VARCHAR(16)                                COMMENT '考勤类型',
+    company_id  VARCHAR(64)                                COMMENT '公司id',
+    create_time TIMESTAMP                                  COMMENT '创建时间',
+    update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户';
 
 CREATE TABLE rule (
-    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键',
-    name        VARCHAR(50)                               COMMENT '规则名称',
-    type        VARCHAR(50)                               COMMENT '规则类型',
-    value       VARCHAR(255)                              COMMENT '规则值',
-    `desc`      VARCHAR(255)                              COMMENT '规则描述',
-    sort        INT                                       COMMENT '排序',
-    status      TINYINT      DEFAULT 1                    COMMENT '状态 0-禁用 1-启用',
-    create_time DATETIME                                  COMMENT '创建时间',
-    update_time DATETIME                                  COMMENT '更新时间'
+    id            BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid          VARCHAR(64)  NOT NULL UNIQUE             COMMENT 'uuid',
+    name          VARCHAR(64)                              COMMENT '规则名称',
+    flexibility   INT(10)      NOT NULL DEFAULT 0          COMMENT '弹性几小时',
+    start_time    TIME         NOT NULL                    COMMENT '上班时间',
+    end_time      TIME         NOT NULL                    COMMENT '下班时间',
+    middle_rest   INT(10)                                  COMMENT '中午是否有午休',
+    middle_start  TIME                                     COMMENT '午休开始时间',
+    middle_end    TIME                                     COMMENT '午休结束时间',
+    vacation      INT(10)                                  COMMENT '是否有年假',
+    comp          INT(10)                                  COMMENT '是否有调休假',
+    accuracy      DECIMAL(9)                               COMMENT '精确度0.5或1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='规则';
 
-CREATE TABLE attendance_apply (
-    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键',
-    uuid        VARCHAR(32)  NOT NULL UNIQUE              COMMENT '业务主键',
-    user_uuid   VARCHAR(32)  NOT NULL                     COMMENT '申请人uuid',
-    type        VARCHAR(20)  NOT NULL                     COMMENT '申请类型 请假/加班/调休/外出',
-    start_time  DATETIME     NOT NULL                     COMMENT '开始时间',
-    end_time    DATETIME     NOT NULL                     COMMENT '结束时间',
-    reason      VARCHAR(500)                               COMMENT '申请原因',
-    status      TINYINT      DEFAULT 0                    COMMENT '状态 0-待审批 1-已通过 2-已驳回',
-    create_time DATETIME                                   COMMENT '创建时间',
-    update_time DATETIME                                   COMMENT '更新时间'
+CREATE TABLE apply (
+    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '申请单主键id',
+    uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT '申请uuid',
+    month       TIMESTAMP    NOT NULL                     COMMENT '申请月份',
+    type        INT(10)      NOT NULL                     COMMENT '申请类型',
+    length_type INT(10)      NOT NULL                     COMMENT '请假时间类型',
+    start_time  TIMESTAMP    NOT NULL                     COMMENT '开始时间',
+    end_time    TIMESTAMP    NOT NULL                     COMMENT '结束时间',
+    length      DECIMAL(9)   NOT NULL                     COMMENT '时长',
+    leader_id   VARCHAR(64)  NOT NULL                     COMMENT '审批人uuid',
+    reject      VARCHAR(64)  NOT NULL                     COMMENT '驳回原因',
+    status      INT(10)                                   COMMENT '状态 1提交 2驳回 3撤销 9未通过',
+    create_time TIMESTAMP    NOT NULL                     COMMENT '创建时间',
+    update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='考勤申请';
+
+CREATE TABLE approve (
+    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '审批主键id',
+    uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT '审批uuid',
+    apply_uuid  VARCHAR(64)  NOT NULL                     COMMENT '申请uuid',
+    `order`     INT(10)                                   COMMENT '审批顺序',
+    leader_id   VARCHAR(64)                               COMMENT '下一审批人',
+    reject      VARCHAR(500) NOT NULL DEFAULT ''           COMMENT '驳回原因',
+    status      INT(10)      NOT NULL DEFAULT 0           COMMENT '状态 9通过 3驳回 2未通过 1通过 0删除',
+    create_time TIMESTAMP    NOT NULL                     COMMENT '创建时间',
+    update_time TIMESTAMP                                  COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审批';

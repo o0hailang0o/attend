@@ -42,7 +42,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     public LoginResultDTO login(LoginDTO dto) {
         SysUser user = baseMapper.selectOne(
                 new LambdaQueryWrapper<SysUser>()
-                        .eq(SysUser::getUsername, dto.getUsername())
+                        .eq(SysUser::getAccout, dto.getAccout())
         );
         if (user == null) {
             throw new RuntimeException("用户不存在");
@@ -50,9 +50,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         String md5Password = DigestUtils.md5Hex(dto.getPassword());
         if (!Objects.equals(user.getPassword(), md5Password)) {
             throw new RuntimeException("密码错误");
-        }
-        if (user.getStatus() == null || user.getStatus() != 1) {
-            throw new RuntimeException("账号已被禁用");
         }
         user.setPassword(null);
         try {

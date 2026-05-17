@@ -2,16 +2,20 @@ package com.hailang.service.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class AttendanceApplyDTO {
+public class ApplyDTO {
     private String uuid;
-    private String userUuid;
-    private String type;
+    private LocalDateTime month;
+    private Integer type;
+    private Integer lengthType;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String reason;
+    private BigDecimal length;
+    private String leaderId;
+    private String reject;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
