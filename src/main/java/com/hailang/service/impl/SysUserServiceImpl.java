@@ -22,12 +22,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> implements SysUserService {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public SysUserServiceImpl(StringRedisTemplate stringRedisTemplate) {
+    public SysUserServiceImpl(StringRedisTemplate stringRedisTemplate, ObjectMapper objectMapper) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         }
         user.setPassword(null);
         try {
-            String json = MAPPER.writeValueAsString(user);
+            String json = objectMapper.writeValueAsString(user);
             stringRedisTemplate.opsForValue().set("sysUser_" + user.getUuid(), json, 30, TimeUnit.MINUTES);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("序列化失败", e);

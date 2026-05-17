@@ -11,12 +11,13 @@ import java.io.PrintWriter;
 
 public class TokenInterceptor implements HandlerInterceptor {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public TokenInterceptor(StringRedisTemplate stringRedisTemplate) {
+    public TokenInterceptor(StringRedisTemplate stringRedisTemplate, ObjectMapper objectMapper) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class TokenInterceptor implements HandlerInterceptor {
             writeUnauthorized(response, "token无效或已过期");
             return false;
         }
-        SysUser user = MAPPER.readValue(json, SysUser.class);
+        SysUser user = objectMapper.readValue(json, SysUser.class);
         request.setAttribute("sysUser", user);
         return true;
     }

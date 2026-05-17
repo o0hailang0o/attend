@@ -1,5 +1,6 @@
 package com.hailang.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hailang.config.interceptor.TokenInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -11,13 +12,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public WebMvcConfig(StringRedisTemplate stringRedisTemplate) {
+    private final ObjectMapper objectMapper;
+
+    public WebMvcConfig(StringRedisTemplate stringRedisTemplate, ObjectMapper objectMapper) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TokenInterceptor(stringRedisTemplate))
+        registry.addInterceptor(new TokenInterceptor(stringRedisTemplate, objectMapper))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/sysUser/login",

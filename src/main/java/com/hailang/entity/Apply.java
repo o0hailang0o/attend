@@ -1,6 +1,8 @@
 package com.hailang.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -47,9 +49,11 @@ public class Apply {
     @Schema(description = "状态 1提交 2驳回 3撤销 9未通过")
     private Integer status;
 
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @Schema(description = "修改时间")
     private LocalDateTime updateTime;
 }
