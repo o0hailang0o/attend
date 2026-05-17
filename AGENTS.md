@@ -15,7 +15,9 @@ com.hailang
 ├── config/
 │   ├── swagger/
 │   │   └── OpenApiConfig.java
-│   └── utils/             # BeanUtils (copy / copyList)
+│   ├── utils/             # BeanUtils (copy / copyList), Result, ResultUtils
+│   └── exception/
+│       └── GlobalExceptionHandler.java
 ├── controller/
 │   ├── req/                 # @Schema 接口入参
 │   └── resp/                # @Schema 接口出参
@@ -41,7 +43,7 @@ DAO:        dto / entity 均可传入
 ## Login system
 - Passwords stored as **MD5** (`DigestUtils.md5Hex` from `commons-codec`).
 - Login generates a UUID token (dashes stripped) and writes it to `sys_user.token`.
-- Service throws raw `RuntimeException` on failure (no global handler yet).
+- Service throws raw `RuntimeException` on failure (caught by `GlobalExceptionHandler` → `ResultUtils.failed`).
 
 ## Database
 - MySQL at `192.168.31.100:3306/attend`, user `root` / `root123`.
@@ -57,3 +59,4 @@ DAO:        dto / entity 均可传入
 - DDL 建表脚本在 `src/main/resources/database/init.sql`。
 - `sys_user.uuid` 是业务主键，API 增删改查优先用 uuid 而非 id 定位用户。
 - Bean 复制统一用 `com.hailang.config.utils.BeanUtils`（基于 Jackson `convertValue`）。
+- 接口统一返回 `Result<T>`，成功用 `ResultUtils.ok(data)`，异常由 `GlobalExceptionHandler` 统一拦截返回 `ResultUtils.failed(msg)`。
