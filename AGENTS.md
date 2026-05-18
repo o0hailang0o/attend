@@ -47,14 +47,14 @@ DAO:        dto / entity 均可传入
 
 ## Login system
 - Passwords stored as **MD5** (`DigestUtils.md5Hex` from `commons-codec`).
-- Login accepts `accout` (账号) as login identifier.
+- Login accepts `account` (账号) as login identifier.
 - Login generates a UUID token and stores user JSON in Redis with key `sysUser_{uuid}`, 30min TTL.
 - Service throws raw `RuntimeException` on failure (caught by `GlobalExceptionHandler` → `ResultUtils.failed`).
 
 ## Database
 - MySQL at `192.168.31.100:3306/attend`, user `root` / `root123`.
 - Existing tables: `sys_user`, `rule`, `apply`, `approve`.
-- `sys_user.accout` is the login account field (note: spelling is `accout`, not `account`).
+- `sys_user.account` is the login account field (note: spelling is `account`, not `account`).
 - `@TableName` explicitly set on every entity.
 
 ## Conventions
