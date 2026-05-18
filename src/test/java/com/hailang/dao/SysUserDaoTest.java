@@ -29,7 +29,7 @@ class SysUserDaoTest {
         SysUser user = new SysUser();
         testUuid = UUID.randomUUID().toString().replace("-", "");
         user.setUuid(testUuid);
-        user.setAccout("test_" + System.currentTimeMillis());
+        user.setAccount("test_" + System.currentTimeMillis());
         user.setName("测试用户");
         user.setPassword(DigestUtils.md5Hex("123456"));
         user.setGender(1);
@@ -54,7 +54,7 @@ class SysUserDaoTest {
     void testInsert() {
         SysUser user = new SysUser();
         user.setUuid(UUID.randomUUID().toString().replace("-", ""));
-        user.setAccout("new_" + System.currentTimeMillis());
+        user.setAccount("new_" + System.currentTimeMillis());
         user.setName("新用户");
         user.setPassword(DigestUtils.md5Hex("123456"));
         user.setGender(1);

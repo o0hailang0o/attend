@@ -1,11 +1,10 @@
 package com.hailang.service;
 
+import com.hailang.config.TestAdminConfig;
 import com.hailang.dao.SysUserDao;
-import com.hailang.entity.SysUser;
 import com.hailang.service.dto.LoginDTO;
 import com.hailang.service.dto.LoginResultDTO;
 import com.hailang.service.dto.SysUserDTO;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,8 +29,6 @@ class SysUserServiceTest {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    private String adminUuid;
-
     @BeforeEach
     void setUp() {
         sysUserDao.delete(null);
@@ -42,20 +38,13 @@ class SysUserServiceTest {
             stringRedisTemplate.delete(redisKeys);
         }
 
-        SysUser admin = new SysUser();
-        adminUuid = UUID.randomUUID().toString().replace("-", "");
-        admin.setUuid(adminUuid);
-        admin.setAccout("admin");
-        admin.setName("管理员");
-        admin.setPassword(DigestUtils.md5Hex("123456"));
-        admin.setGender(1);
-        sysUserDao.insert(admin);
+        sysUserDao.insert(TestAdminConfig.ADMIN);
     }
 
     @Test
     void testLogin() {
         LoginDTO dto = new LoginDTO();
-        dto.setAccout("admin");
+        dto.setAccount("admin");
         dto.setPassword("123456");
         LoginResultDTO result = sysUserService.login(dto);
         assertNotNull(result);
@@ -64,8 +53,8 @@ class SysUserServiceTest {
 
     @Test
     void testGetByUuid() {
-        SysUserDTO dto = sysUserService.getByUuid(adminUuid);
+        SysUserDTO dto = sysUserService.getByUuid(TestAdminConfig.ADMIN_UUID);
         assertNotNull(dto);
-        assertEquals(adminUuid, dto.getUuid());
+        assertEquals(TestAdminConfig.ADMIN_UUID, dto.getUuid());
     }
 }
