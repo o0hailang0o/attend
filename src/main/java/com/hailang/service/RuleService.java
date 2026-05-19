@@ -1,7 +1,17 @@
 package com.hailang.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.hailang.entity.Rule;
+import com.hailang.service.dto.RuleDTO;
 
-public interface RuleService extends IService<Rule> {
+import java.util.List;
+
+public interface RuleService {
+    List<RuleDTO> list();
+
+    RuleDTO getByUuid(String uuid);
+
+    RuleDTO save(RuleDTO dto);
+
+    RuleDTO update(RuleDTO dto);
+
+    boolean removeByUuid(String uuid);
 }

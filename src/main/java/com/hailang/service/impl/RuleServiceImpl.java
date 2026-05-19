@@ -1,26 +1,62 @@
 package com.hailang.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.hailang.config.utils.BeanUtils;
 import com.hailang.dao.RuleDao;
 import com.hailang.entity.Rule;
 import com.hailang.service.RuleService;
+import com.hailang.service.dto.RuleDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-public class RuleServiceImpl extends ServiceImpl<RuleDao, Rule> implements RuleService {
+@RequiredArgsConstructor
+public class RuleServiceImpl implements RuleService {
+
+    private final RuleDao ruleDao;
 
     @Override
-    public boolean save(Rule rule) {
-        validate(rule);
-        return super.save(rule);
+    public List<RuleDTO> list() {
+        return ruleDao.selectList(null).stream()
+                .map(rule -> BeanUtils.copy(rule, RuleDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public boolean updateById(Rule rule) {
+    public RuleDTO getByUuid(String uuid) {
+        Rule rule = ruleDao.selectByUuid(uuid);
+        return rule == null ? null : BeanUtils.copy(rule, RuleDTO.class);
+    }
+
+    @Override
+    public RuleDTO save(RuleDTO dto) {
+        Rule rule = BeanUtils.copy(dto, Rule.class);
+        rule.setUuid(UUID.randomUUID().toString().replace("-", ""));
         validate(rule);
-        return super.updateById(rule);
+        ruleDao.insert(rule);
+        return BeanUtils.copy(rule, RuleDTO.class);
+    }
+
+    @Override
+    public RuleDTO update(RuleDTO dto) {
+        Rule rule = BeanUtils.copy(dto, Rule.class);
+        validate(rule);
+        ruleDao.update(rule, new LambdaQueryWrapper<Rule>().eq(Rule::getUuid, rule.getUuid()));
+        return BeanUtils.copy(rule, RuleDTO.class);
+    }
+
+    @Override
+    public boolean removeByUuid(String uuid) {
+        Rule rule = ruleDao.selectByUuid(uuid);
+        if (rule == null) {
+            return false;
+        }
+        return ruleDao.deleteById(rule.getId()) > 0;
     }
 
     private void validate(Rule rule) {

@@ -22,11 +22,12 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader("token");
-        if (token == null || token.isEmpty()) {
+        String auth = request.getHeader("Authorization");
+        if (auth == null || !auth.startsWith("Bearer ")) {
             writeUnauthorized(response, "token不能为空");
             return false;
         }
+        String token = auth.substring(7);
         String json = stringRedisTemplate.opsForValue().get("sysUser_" + token);
         if (json == null) {
             writeUnauthorized(response, "token无效或已过期");
