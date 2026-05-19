@@ -63,6 +63,6 @@ DAO:        dto / entity 均可传入
 - `Rule.desc` is a SQL reserved word — backtick-quoted (`\`desc\``) in XML.
 - Controller paths use camelCase (e.g. `/sysUser`).
 - DDL 建表脚本在 `src/main/resources/database/init.sql`。
-- `sys_user.uuid` 是业务主键，API 增删改查优先用 uuid 而非 id 定位用户。
+- 所有表统一以 `uuid` 作为业务主键，API 增删改查优先用 uuid 而非自增 id 定位记录。
 - Bean 复制统一用 `com.hailang.config.utils.BeanUtils`（基于 Jackson `convertValue`）。
 - 接口统一返回 `Result<T>`，成功用 `ResultUtils.ok(data)`，异常由 `GlobalExceptionHandler` 统一拦截返回 `ResultUtils.failed(msg)`。
