@@ -37,7 +37,7 @@ public class TestAdminConfig {
     public static RequestPostProcessor adminUser() {
         return request -> {
             request.setAttribute("sysUser", ADMIN);
-            request.addHeader("token", ADMIN_UUID);
+            request.addHeader("Authorization", "Bearer " + ADMIN_UUID);
             return request;
         };
     }
