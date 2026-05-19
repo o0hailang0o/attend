@@ -71,7 +71,8 @@ class SysUserControllerTest {
         mockMvc.perform(get("/sysUser").with(TestAdminConfig.adminUser()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data").isArray());
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.total").isNumber());
     }
 
     @Test

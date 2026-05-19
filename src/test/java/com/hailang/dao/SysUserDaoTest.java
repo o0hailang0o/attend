@@ -33,6 +33,7 @@ class SysUserDaoTest {
         user.setName("测试用户");
         user.setPassword(DigestUtils.md5Hex("123456"));
         user.setGender(1);
+        user.setPosition("测试职称");
         user.setIsDelete(1);
         sysUserDao.insert(user);
     }
@@ -59,6 +60,7 @@ class SysUserDaoTest {
         user.setName("新用户");
         user.setPassword(DigestUtils.md5Hex("123456"));
         user.setGender(1);
+        user.setPosition("新职称");
         int rows = sysUserDao.insert(user);
         assertEquals(1, rows);
         assertNotNull(user.getId());
