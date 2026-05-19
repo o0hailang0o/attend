@@ -13,8 +13,13 @@ public class SysUserDTO {
     private Integer gender;
     private String workNum;
     private String level;
-    private String type;
+    private String position;
+    private String positionUuid;
+    private String ruleUuid;
+    private String ruleName;
     private String companyId;
+    private String deptUuid;
+    private String deptName;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

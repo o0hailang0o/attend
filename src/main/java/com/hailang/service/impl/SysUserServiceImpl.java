@@ -1,11 +1,14 @@
 package com.hailang.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hailang.config.utils.BeanUtils;
+import com.hailang.controller.req.SysUserQueryReq;
 import com.hailang.dao.SysUserDao;
 import com.hailang.entity.SysUser;
 import com.hailang.service.SysUserService;
@@ -43,8 +46,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     }
 
     @Override
-    public List<SysUser> list() {
-        return baseMapper.selectList(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getIsDelete, 1));
+    public IPage<SysUser> list(int page, int size, SysUserQueryReq req) {
+        return baseMapper.selectPage(new Page<>(page, size),
+                new LambdaQueryWrapper<SysUser>()
+                        .eq(SysUser::getIsDelete, 1)
+                        .eq(req.getDeptUuid() != null && !req.getDeptUuid().isEmpty(), SysUser::getDeptUuid, req.getDeptUuid())
+                        .eq(req.getPositionUuid() != null && !req.getPositionUuid().isEmpty(), SysUser::getPositionUuid, req.getPositionUuid())
+                        .eq(req.getRuleUuid() != null && !req.getRuleUuid().isEmpty(), SysUser::getRuleUuid, req.getRuleUuid())
+                        .like(req.getName() != null && !req.getName().isEmpty(), SysUser::getName, req.getName())
+                        .like(req.getLevel() != null && !req.getLevel().isEmpty(), SysUser::getLevel, req.getLevel())
+                        .like(req.getPosition() != null && !req.getPosition().isEmpty(), SysUser::getPosition, req.getPosition())
+                        .like(req.getCompanyId() != null && !req.getCompanyId().isEmpty(), SysUser::getCompanyId, req.getCompanyId())
+        );
     }
 
     @Override
@@ -76,6 +89,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     }
 
     @Override
+    public void updateByUuid(SysUser entity) {
+        baseMapper.update(entity, Wrappers.<SysUser>lambdaUpdate().eq(SysUser::getUuid, entity.getUuid()));
+    }
+
+    @Override
     public SysUserDTO getByUuid(String uuid) {
         SysUser user = baseMapper.selectByUuid(uuid);
         if (user == null) {
@@ -86,10 +104,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
 
     @Override
     public boolean removeByUuid(String uuid) {
-        SysUser user = baseMapper.selectByUuid(uuid);
-        if (user == null) {
-            return false;
-        }
-        return removeById(user.getId());
+        return baseMapper.update(null,
+                Wrappers.<SysUser>lambdaUpdate()
+                        .eq(SysUser::getUuid, uuid)
+                        .set(SysUser::getIsDelete, 0)) > 0;
     }
 }

@@ -54,11 +54,10 @@ public class RuleServiceImpl implements RuleService {
 
     @Override
     public boolean removeByUuid(String uuid) {
-        Rule rule = ruleDao.selectByUuid(uuid);
-        if (rule == null) {
-            return false;
-        }
-        return ruleDao.deleteById(rule.getId()) > 0;
+        return ruleDao.update(null,
+                Wrappers.<Rule>lambdaUpdate()
+                        .eq(Rule::getUuid, uuid)
+                        .set(Rule::getIsDelete, 0)) > 0;
     }
 
     private void validate(Rule rule) {

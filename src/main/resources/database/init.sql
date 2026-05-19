@@ -8,8 +8,13 @@ CREATE TABLE sys_user (
     gender      INT(10)      NOT NULL DEFAULT 1           COMMENT '性别',
     work_num    VARCHAR(32)                                COMMENT '工号',
     level       VARCHAR(16)                                COMMENT '级别',
-    type        VARCHAR(16)                                COMMENT '考勤类型',
+    position    VARCHAR(32)                                COMMENT '职称',
+    position_uuid VARCHAR(64)                              COMMENT '职位uuid',
+    rule_uuid   VARCHAR(64)                                COMMENT '考勤规则uuid',
+    rule_name   VARCHAR(64)                                COMMENT '考勤规则名称',
     company_id  VARCHAR(64)                                COMMENT '公司id',
+    dept_uuid   VARCHAR(64)                                COMMENT '部门uuid',
+    dept_name   VARCHAR(64)                                COMMENT '部门名称',
     is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
     create_time TIMESTAMP                                  COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
@@ -60,3 +65,22 @@ CREATE TABLE approve (
     create_time TIMESTAMP    NOT NULL                     COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审批';
+
+CREATE TABLE dept (
+    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT 'uuid',
+    name        VARCHAR(64)  NOT NULL                     COMMENT '部门名称',
+    parent_uuid VARCHAR(64)                               COMMENT '上级部门uuid',
+    is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
+    create_time TIMESTAMP                                  COMMENT '创建时间',
+    update_time TIMESTAMP                                  COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门';
+
+CREATE TABLE `position` (
+    id          BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid        VARCHAR(64)  NOT NULL UNIQUE              COMMENT 'uuid',
+    name        VARCHAR(64)  NOT NULL                     COMMENT '职位名称',
+    is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
+    create_time TIMESTAMP                                  COMMENT '创建时间',
+    update_time TIMESTAMP                                  COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='职位';

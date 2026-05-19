@@ -1,6 +1,8 @@
 package com.hailang.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hailang.controller.req.SysUserQueryReq;
 import com.hailang.entity.SysUser;
 import com.hailang.service.dto.LoginDTO;
 import com.hailang.service.dto.LoginResultDTO;
@@ -10,4 +12,6 @@ public interface SysUserService extends IService<SysUser> {
     LoginResultDTO login(LoginDTO dto);
     SysUserDTO getByUuid(String uuid);
     boolean removeByUuid(String uuid);
+    IPage<SysUser> list(int page, int size, SysUserQueryReq req);
+    void updateByUuid(SysUser entity);
 }

@@ -1,9 +1,11 @@
 package com.hailang.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
 import com.hailang.controller.req.LoginReq;
+import com.hailang.controller.req.SysUserQueryReq;
 import com.hailang.controller.resp.LoginResp;
 import com.hailang.controller.resp.SysUserResp;
 import com.hailang.entity.SysUser;
@@ -15,8 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "系统用户")
 @RestController
@@ -34,10 +34,13 @@ public class SysUserController {
         return ResultUtils.ok(BeanUtils.copy(loginResultDTO, LoginResp.class));
     }
 
-    @Operation(summary = "查询所有用户")
+    @Operation(summary = "分页查询用户")
     @GetMapping
-    public Result<List<SysUser>> list() {
-        return ResultUtils.ok(sysUserService.list());
+    public Result<IPage<SysUser>> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            SysUserQueryReq req) {
+        return ResultUtils.ok(sysUserService.list(page, size, req));
     }
 
     @Operation(summary = "根据业务主键查询用户详情")
@@ -55,8 +58,9 @@ public class SysUserController {
 
     @Operation(summary = "修改用户")
     @PutMapping
-    public Result<Boolean> update(@RequestBody SysUser sysUser) {
-        return ResultUtils.ok(sysUserService.updateById(sysUser));
+    public Result<Void> update(@RequestBody SysUser sysUser) {
+        sysUserService.updateByUuid(sysUser);
+        return ResultUtils.ok(null);
     }
 
     @Operation(summary = "根据业务主键删除用户")

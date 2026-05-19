@@ -42,11 +42,26 @@ public class SysUser {
     @Schema(description = "级别")
     private String level;
 
-    @Schema(description = "考勤类型")
-    private String type;
+    @Schema(description = "职称")
+    private String position;
+
+    @Schema(description = "职位uuid")
+    private String positionUuid;
+
+    @Schema(description = "考勤规则uuid")
+    private String ruleUuid;
+
+    @Schema(description = "考勤规则名称")
+    private String ruleName;
 
     @Schema(description = "公司id")
     private String companyId;
+
+    @Schema(description = "部门uuid")
+    private String deptUuid;
+
+    @Schema(description = "部门名称")
+    private String deptName;
 
     @Schema(description = "假删除 0删除 1保留")
     private Integer isDelete;

@@ -12,15 +12,20 @@
         <result column="gender" property="gender"/>
         <result column="work_num" property="workNum"/>
         <result column="level" property="level"/>
-        <result column="type" property="type"/>
+        <result column="position" property="position"/>
+        <result column="position_uuid" property="positionUuid"/>
+        <result column="rule_uuid" property="ruleUuid"/>
+        <result column="rule_name" property="ruleName"/>
         <result column="company_id" property="companyId"/>
+        <result column="dept_uuid" property="deptUuid"/>
+        <result column="dept_name" property="deptName"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, uuid, name, account, password, nick_name, gender, work_num, level, type, company_id, is_delete, create_time, update_time
+        id, uuid, name, account, password, nick_name, gender, work_num, level, position, position_uuid, rule_uuid, rule_name, company_id, dept_uuid, dept_name, is_delete, create_time, update_time
     </sql>
 
 </mapper>
