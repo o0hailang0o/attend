@@ -33,6 +33,7 @@ class SysUserDaoTest {
         user.setName("测试用户");
         user.setPassword(DigestUtils.md5Hex("123456"));
         user.setGender(1);
+        user.setIsDelete(1);
         sysUserDao.insert(user);
     }
 

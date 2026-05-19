@@ -21,6 +21,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         Apply entity = BeanUtils.copy(dto, Apply.class);
         entity.setUuid(UUID.randomUUID().toString().replace("-", ""));
         entity.setStatus(1);
+        entity.setIsDelete(1);
         baseMapper.insert(entity);
     }
 
@@ -30,6 +31,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         Page<Apply> result = baseMapper.selectPage(pageParam,
                 new LambdaQueryWrapper<Apply>()
                         .eq(Apply::getLeaderId, userUuid)
+                        .eq(Apply::getIsDelete, 1)
                         .orderByDesc(Apply::getCreateTime)
         );
         return result.convert(item -> BeanUtils.copy(item, ApplyDTO.class));

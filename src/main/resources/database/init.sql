@@ -10,6 +10,7 @@ CREATE TABLE sys_user (
     level       VARCHAR(16)                                COMMENT '级别',
     type        VARCHAR(16)                                COMMENT '考勤类型',
     company_id  VARCHAR(64)                                COMMENT '公司id',
+    is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
     create_time TIMESTAMP                                  COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户';
@@ -26,7 +27,8 @@ CREATE TABLE rule (
     middle_end    TIME                                     COMMENT '午休结束时间',
     vacation      INT(10)                                  COMMENT '是否有年假',
     comp          INT(10)                                  COMMENT '是否有调休假',
-    accuracy      DECIMAL(9)                               COMMENT '精确度0.5或1'
+    accuracy      DECIMAL(9)                               COMMENT '精确度0.5或1',
+    is_delete     INT(10)      NOT NULL DEFAULT 0           COMMENT '假删除 0删除 1保留'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='规则';
 
 CREATE TABLE apply (
@@ -41,6 +43,7 @@ CREATE TABLE apply (
     leader_id   VARCHAR(64)  NOT NULL                     COMMENT '审批人uuid',
     reject      VARCHAR(64)  NOT NULL                     COMMENT '驳回原因',
     status      INT(10)                                   COMMENT '状态 1提交 2驳回 3撤销 9未通过',
+    is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
     create_time TIMESTAMP    NOT NULL                     COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='考勤申请';
@@ -53,6 +56,7 @@ CREATE TABLE approve (
     leader_id   VARCHAR(64)                               COMMENT '下一审批人',
     reject      VARCHAR(500) NOT NULL DEFAULT ''           COMMENT '驳回原因',
     status      INT(10)      NOT NULL DEFAULT 0           COMMENT '状态 9通过 3驳回 2未通过 1通过 0删除',
+    is_delete   INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
     create_time TIMESTAMP    NOT NULL                     COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审批';

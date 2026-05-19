@@ -27,6 +27,7 @@ public class TestAdminConfig {
         ADMIN.setName("管理员");
         ADMIN.setPassword("e10adc3949ba59abbe56e057f20f883e");
         ADMIN.setGender(1);
+        ADMIN.setIsDelete(1);
         try {
             ADMIN_JSON = MAPPER.writeValueAsString(ADMIN);
         } catch (Exception e) {

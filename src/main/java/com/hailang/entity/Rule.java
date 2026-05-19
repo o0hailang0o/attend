@@ -49,4 +49,7 @@ public class Rule {
 
     @Schema(description = "精确度0.5或1")
     private BigDecimal accuracy;
+
+    @Schema(description = "假删除 0删除 1保留")
+    private Integer isDelete;
 }

@@ -1,6 +1,7 @@
 package com.hailang.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hailang.config.utils.BeanUtils;
 import com.hailang.dao.RuleDao;
 import com.hailang.entity.Rule;
@@ -22,7 +23,7 @@ public class RuleServiceImpl implements RuleService {
 
     @Override
     public List<RuleDTO> list() {
-        return ruleDao.selectList(null).stream()
+        return ruleDao.selectList(Wrappers.<Rule>lambdaQuery().eq(Rule::getIsDelete, 1)).stream()
                 .map(rule -> BeanUtils.copy(rule, RuleDTO.class))
                 .collect(Collectors.toList());
     }
@@ -37,6 +38,7 @@ public class RuleServiceImpl implements RuleService {
     public RuleDTO save(RuleDTO dto) {
         Rule rule = BeanUtils.copy(dto, Rule.class);
         rule.setUuid(UUID.randomUUID().toString().replace("-", ""));
+        rule.setIsDelete(1);
         validate(rule);
         ruleDao.insert(rule);
         return BeanUtils.copy(rule, RuleDTO.class);

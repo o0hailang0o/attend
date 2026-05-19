@@ -16,10 +16,11 @@
         <result column="company_id" property="companyId"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, uuid, name, account, password, nick_name, gender, work_num, level, type, company_id, create_time, update_time
+        id, uuid, name, account, password, nick_name, gender, work_num, level, type, company_id, is_delete, create_time, update_time
     </sql>
 
 </mapper>

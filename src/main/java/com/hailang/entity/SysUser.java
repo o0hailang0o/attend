@@ -48,6 +48,9 @@ public class SysUser {
     @Schema(description = "公司id")
     private String companyId;
 
+    @Schema(description = "假删除 0删除 1保留")
+    private Integer isDelete;
+
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
     private LocalDateTime createTime;

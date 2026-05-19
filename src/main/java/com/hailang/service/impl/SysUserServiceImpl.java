@@ -1,6 +1,7 @@
 package com.hailang.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +38,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         if (entity.getUuid() == null) {
             entity.setUuid(UUID.randomUUID().toString().replace("-", ""));
         }
+        entity.setIsDelete(1);
         return super.save(entity);
+    }
+
+    @Override
+    public List<SysUser> list() {
+        return baseMapper.selectList(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getIsDelete, 1));
     }
 
     @Override
@@ -44,6 +52,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
         SysUser user = baseMapper.selectOne(
                 new LambdaQueryWrapper<SysUser>()
                         .eq(SysUser::getAccount, dto.getAccount())
+                        .eq(SysUser::getIsDelete, 1)
         );
         if (user == null) {
             throw new RuntimeException("用户不存在");

@@ -16,11 +16,12 @@
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, uuid, month, type, length_type, start_time, end_time, length, leader_id, reject,
-        status, create_time, update_time
+        status, is_delete, create_time, update_time
     </sql>
 
 </mapper>

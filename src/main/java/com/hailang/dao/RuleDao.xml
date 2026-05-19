@@ -15,11 +15,12 @@
         <result column="vacation" property="vacation"/>
         <result column="comp" property="comp"/>
         <result column="accuracy" property="accuracy"/>
+        <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, uuid, name, flexibility, start_time, end_time, middle_rest, middle_start, middle_end,
-        vacation, comp, accuracy
+        vacation, comp, accuracy, is_delete
     </sql>
 
 </mapper>

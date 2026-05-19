@@ -34,6 +34,9 @@ public class Approve {
     @Schema(description = "状态 9通过 3驳回 2未通过 1通过 0删除")
     private Integer status;
 
+    @Schema(description = "假删除 0删除 1保留")
+    private Integer isDelete;
+
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
