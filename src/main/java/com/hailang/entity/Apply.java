@@ -40,6 +40,9 @@ public class Apply {
     @Schema(description = "时长")
     private BigDecimal length;
 
+    @Schema(description = "申请人uuid")
+    private String applyUserUuid;
+
     @Schema(description = "审批人uuid")
     private String leaderId;
 

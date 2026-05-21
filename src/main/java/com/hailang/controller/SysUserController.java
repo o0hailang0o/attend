@@ -1,6 +1,5 @@
 package com.hailang.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
@@ -19,6 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "系统用户")
 @RestController
 @RequestMapping("/sysuser")
@@ -35,13 +36,10 @@ public class SysUserController {
         return ResultUtils.ok(BeanUtils.copy(loginResultDTO, LoginResp.class));
     }
 
-    @Operation(summary = "分页查询用户")
+    @Operation(summary = "查询用户列表")
     @GetMapping
-    public Result<IPage<SysUser>> list(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            SysUserQueryReq req) {
-        return ResultUtils.ok(sysUserService.list(page, size, req));
+    public Result<List<SysUser>> list(SysUserQueryReq req) {
+        return ResultUtils.ok(sysUserService.list(req));
     }
 
     @Operation(summary = "根据业务主键查询用户详情")

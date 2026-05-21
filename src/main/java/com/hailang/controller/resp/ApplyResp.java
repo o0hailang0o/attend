@@ -31,6 +31,9 @@ public class ApplyResp {
     private BigDecimal length;
 
     @Schema(description = "申请人uuid")
+    private String applyUserUuid;
+
+    @Schema(description = "审批人uuid")
     private String leaderId;
 
     @Schema(description = "驳回原因")

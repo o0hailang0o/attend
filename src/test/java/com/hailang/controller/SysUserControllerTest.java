@@ -58,7 +58,7 @@ class SysUserControllerTest {
     @Test
     void testLogin() throws Exception {
         String body = "{\"account\":\"admin\",\"password\":\"123456\"}";
-        mockMvc.perform(post("/sysUser/login")
+        mockMvc.perform(post("/sysuser/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk())
@@ -68,16 +68,15 @@ class SysUserControllerTest {
 
     @Test
     void testList() throws Exception {
-        mockMvc.perform(get("/sysUser").with(TestAdminConfig.adminUser()))
+        mockMvc.perform(get("/sysuser").with(TestAdminConfig.adminUser()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.records").isArray())
-                .andExpect(jsonPath("$.data.total").isNumber());
+                .andExpect(jsonPath("$.data").isArray());
     }
 
     @Test
     void testGetByUuid() throws Exception {
-        mockMvc.perform(get("/sysUser/" + TestAdminConfig.ADMIN_UUID)
+        mockMvc.perform(get("/sysuser/" + TestAdminConfig.ADMIN_UUID)
                         .with(TestAdminConfig.adminUser()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))

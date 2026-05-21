@@ -5,6 +5,7 @@ import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
 import com.hailang.controller.req.ApplyCalcReq;
+import com.hailang.controller.req.ApplyListReq;
 import com.hailang.controller.req.ApplyReq;
 import com.hailang.controller.resp.ApplyResp;
 import com.hailang.service.ApplyService;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 @Tag(name = "考勤申请")
 @RestController
@@ -42,10 +44,11 @@ public class ApplyController {
 
     @Operation(summary = "分页查询个人考勤申请列表")
     @GetMapping
-    public Result<IPage<ApplyResp>> list(@RequestParam String userUuid,
+    public Result<IPage<ApplyResp>> list(ApplyListReq req,
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
-        IPage<ApplyDTO> pageResult = applyService.listByUser(userUuid, page, size);
+        IPage<ApplyDTO> pageResult = applyService.listByUser(req.getUserUuid(),
+                req.getMonth() != null ? req.getMonth().atStartOfDay() : null, page, size);
         IPage<ApplyResp> respPage = pageResult.convert(item -> BeanUtils.copy(item, ApplyResp.class));
         return ResultUtils.ok(respPage);
     }

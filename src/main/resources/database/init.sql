@@ -32,7 +32,7 @@ CREATE TABLE rule (
     middle_end    TIME                                     COMMENT '午休结束时间',
     vacation      INT(10)                                  COMMENT '是否有年假',
     comp          INT(10)                                  COMMENT '是否有调休假',
-    accuracy      DECIMAL(9)                               COMMENT '精确度0.5或1',
+    accuracy      DECIMAL(9,1)                             COMMENT '精确度0.5或1',
     is_delete     INT(10)      NOT NULL DEFAULT 0           COMMENT '假删除 0删除 1保留'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='规则';
 
@@ -45,6 +45,7 @@ CREATE TABLE apply (
     start_time  TIMESTAMP    NOT NULL                     COMMENT '开始时间',
     end_time    TIMESTAMP    NOT NULL                     COMMENT '结束时间',
     length      DECIMAL(9)   NOT NULL                     COMMENT '时长',
+    apply_user_uuid VARCHAR(64)                            COMMENT '申请人uuid',
     leader_id   VARCHAR(64)  NOT NULL                     COMMENT '审批人uuid',
     reject      VARCHAR(64)  NOT NULL                     COMMENT '驳回原因',
     status      INT(10)                                   COMMENT '状态 1提交 2驳回 3撤销 9未通过',
@@ -84,3 +85,12 @@ CREATE TABLE `position` (
     create_time TIMESTAMP                                  COMMENT '创建时间',
     update_time TIMESTAMP                                  COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='职位';
+
+CREATE TABLE leader (
+    id           BIGINT       PRIMARY KEY COMMENT '主键id',
+    leader_uuid  VARCHAR(64)                              COMMENT '领导用户uuid',
+    leader_name  VARCHAR(32)                              COMMENT '领导姓名',
+    parent_id    BIGINT                                   COMMENT '上级领导id',
+    level        INT(10)                                  COMMENT '级别',
+    tree         VARCHAR(2000)                            COMMENT '审批链'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公司领导审批链';

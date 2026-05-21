@@ -33,6 +33,7 @@ class ApplyServiceTest {
         r1.setName("标准规则");
         r1.setStartTime(LocalTime.of(9, 0));
         r1.setEndTime(LocalTime.of(18, 0));
+        r1.setFlexibility(0);
         r1.setMiddleRest(1);
         r1.setMiddleStart(LocalTime.of(12, 0));
         r1.setMiddleEnd(LocalTime.of(13, 0));
@@ -43,6 +44,7 @@ class ApplyServiceTest {
         r2.setName("无午休规则");
         r2.setStartTime(LocalTime.of(9, 0));
         r2.setEndTime(LocalTime.of(18, 0));
+        r2.setFlexibility(0);
         r2.setMiddleRest(0);
         r2.setAccuracy(BigDecimal.valueOf(0.5));
         ruleNoLunchUuid = ruleService.save(r2).getUuid();
@@ -51,6 +53,7 @@ class ApplyServiceTest {
         r3.setName("取整规则");
         r3.setStartTime(LocalTime.of(9, 0));
         r3.setEndTime(LocalTime.of(18, 0));
+        r3.setFlexibility(0);
         r3.setMiddleRest(1);
         r3.setMiddleStart(LocalTime.of(12, 0));
         r3.setMiddleEnd(LocalTime.of(13, 0));

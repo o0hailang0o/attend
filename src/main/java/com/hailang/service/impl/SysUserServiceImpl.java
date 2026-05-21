@@ -1,9 +1,7 @@
 package com.hailang.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,8 +46,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
     }
 
     @Override
-    public IPage<SysUser> list(int page, int size, SysUserQueryReq req) {
-        return baseMapper.selectPage(new Page<>(page, size),
+    public List<SysUser> list(SysUserQueryReq req) {
+        List<SysUser> list = baseMapper.selectList(
                 new LambdaQueryWrapper<SysUser>()
                         .eq(SysUser::getIsDelete, 1)
                         .eq(req.getDeptUuid() != null && !req.getDeptUuid().isEmpty(), SysUser::getDeptUuid, req.getDeptUuid())
@@ -60,6 +58,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
                         .like(req.getPosition() != null && !req.getPosition().isEmpty(), SysUser::getPosition, req.getPosition())
                         .like(req.getCompanyId() != null && !req.getCompanyId().isEmpty(), SysUser::getCompanyId, req.getCompanyId())
         );
+        list.forEach(u -> u.setPassword(null));
+        return list;
     }
 
     @Override

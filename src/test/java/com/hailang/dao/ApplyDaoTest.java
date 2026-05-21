@@ -36,6 +36,7 @@ class ApplyDaoTest {
         apply.setStartTime(LocalDateTime.now());
         apply.setEndTime(LocalDateTime.now().plusHours(8));
         apply.setLength(BigDecimal.valueOf(8));
+        apply.setApplyUserUuid("apply_user_uuid");
         apply.setLeaderId("leader_uuid");
         apply.setReject("");
         apply.setStatus(1);
@@ -60,6 +61,7 @@ class ApplyDaoTest {
         apply.setStartTime(LocalDateTime.now());
         apply.setEndTime(LocalDateTime.now().plusHours(8));
         apply.setLength(BigDecimal.valueOf(8));
+        apply.setApplyUserUuid("apply_user_uuid");
         apply.setLeaderId("leader_uuid");
         apply.setReject("");
         apply.setStatus(1);

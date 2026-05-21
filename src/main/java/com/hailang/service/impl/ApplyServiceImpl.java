@@ -34,6 +34,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
     public void submit(ApplyDTO dto) {
         Apply entity = BeanUtils.copy(dto, Apply.class);
         entity.setUuid(UUID.randomUUID().toString().replace("-", ""));
+        entity.setApplyUserUuid(dto.getLeaderId());
         entity.setStatus(1);
         entity.setIsDelete(1);
         baseMapper.insert(entity);
@@ -52,11 +53,12 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
     }
 
     @Override
-    public IPage<ApplyDTO> listByUser(String userUuid, int page, int size) {
+    public IPage<ApplyDTO> listByUser(String userUuid, LocalDateTime month, int page, int size) {
         Page<Apply> pageParam = new Page<>(page, size);
         Page<Apply> result = baseMapper.selectPage(pageParam,
                 new LambdaQueryWrapper<Apply>()
-                        .eq(Apply::getLeaderId, userUuid)
+                        .eq(Apply::getApplyUserUuid, userUuid)
+                        .eq(month != null, Apply::getMonth, month)
                         .eq(Apply::getIsDelete, 1)
                         .orderByDesc(Apply::getCreateTime)
         );

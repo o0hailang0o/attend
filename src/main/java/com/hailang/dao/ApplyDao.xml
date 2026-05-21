@@ -11,6 +11,7 @@
         <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
         <result column="length" property="length"/>
+        <result column="apply_user_uuid" property="applyUserUuid"/>
         <result column="leader_id" property="leaderId"/>
         <result column="reject" property="reject"/>
         <result column="status" property="status"/>
@@ -20,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, uuid, month, type, length_type, start_time, end_time, length, leader_id, reject,
+        id, uuid, month, type, length_type, start_time, end_time, length, apply_user_uuid, leader_id, reject,
         status, is_delete, create_time, update_time
     </sql>
 

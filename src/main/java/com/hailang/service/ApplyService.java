@@ -11,7 +11,7 @@ public interface ApplyService {
     void update(ApplyDTO dto);
     void remove(String uuid);
     ApplyDTO getByUuid(String uuid);
-    IPage<ApplyDTO> listByUser(String userUuid, int page, int size);
+    IPage<ApplyDTO> listByUser(String userUuid, LocalDateTime month, int page, int size);
     void cancel(String uuid);
     BigDecimal calculateLength(LocalDateTime startTime, LocalDateTime endTime, String ruleUuid);
 }
