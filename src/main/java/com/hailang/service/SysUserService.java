@@ -7,6 +7,7 @@ import com.hailang.entity.SysUser;
 import com.hailang.service.dto.LoginDTO;
 import com.hailang.service.dto.LoginResultDTO;
 import com.hailang.service.dto.SysUserDTO;
+import java.util.List;
 
 public interface SysUserService extends IService<SysUser> {
     LoginResultDTO login(LoginDTO dto);
@@ -14,4 +15,5 @@ public interface SysUserService extends IService<SysUser> {
     boolean removeByUuid(String uuid);
     IPage<SysUser> list(int page, int size, SysUserQueryReq req);
     void updateByUuid(SysUser entity);
+    void batchUpdateRule(List<String> uuids, String ruleUuid, String ruleName);
 }

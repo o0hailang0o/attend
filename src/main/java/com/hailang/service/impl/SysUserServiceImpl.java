@@ -24,6 +24,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+
+
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> implements SysUserService {
 
@@ -108,5 +110,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUser> impleme
                 Wrappers.<SysUser>lambdaUpdate()
                         .eq(SysUser::getUuid, uuid)
                         .set(SysUser::getIsDelete, 0)) > 0;
+    }
+
+    @Override
+    public void batchUpdateRule(List<String> uuids, String ruleUuid, String ruleName) {
+        if (uuids == null || uuids.isEmpty()) {
+            throw new RuntimeException("用户列表不能为空");
+        }
+        if (ruleUuid == null || ruleUuid.isEmpty()) {
+            throw new RuntimeException("考勤规则不能为空");
+        }
+        baseMapper.update(null,
+                Wrappers.<SysUser>lambdaUpdate()
+                        .in(SysUser::getUuid, uuids)
+                        .set(SysUser::getRuleUuid, ruleUuid)
+                        .set(SysUser::getRuleName, ruleName));
     }
 }

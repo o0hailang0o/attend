@@ -30,9 +30,18 @@ public class ApplyResp {
     @Schema(description = "时长")
     private BigDecimal length;
 
+    @Schema(description = "申请人uuid")
+    private String leaderId;
+
+    @Schema(description = "驳回原因")
+    private String reject;
+
     @Schema(description = "状态 1提交 2驳回 3撤销 9未通过")
     private Integer status;
 
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
+
+    @Schema(description = "修改时间")
+    private LocalDateTime updateTime;
 }

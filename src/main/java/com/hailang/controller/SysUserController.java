@@ -5,6 +5,7 @@ import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
 import com.hailang.controller.req.LoginReq;
+import com.hailang.controller.req.SysUserBatchUpdateRuleReq;
 import com.hailang.controller.req.SysUserQueryReq;
 import com.hailang.controller.resp.LoginResp;
 import com.hailang.controller.resp.SysUserResp;
@@ -67,5 +68,12 @@ public class SysUserController {
     @DeleteMapping("/{uuid}")
     public Result<Boolean> removeByUuid(@PathVariable String uuid) {
         return ResultUtils.ok(sysUserService.removeByUuid(uuid));
+    }
+
+    @Operation(summary = "批量修改考勤规则")
+    @PutMapping("/batch/rule")
+    public Result<Void> batchUpdateRule(@RequestBody SysUserBatchUpdateRuleReq req) {
+        sysUserService.batchUpdateRule(req.getUuids(), req.getRuleUuid(), req.getRuleName());
+        return ResultUtils.ok(null);
     }
 }
