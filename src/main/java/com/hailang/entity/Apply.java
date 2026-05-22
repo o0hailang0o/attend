@@ -44,12 +44,15 @@ public class Apply {
     private String applyUserUuid;
 
     @Schema(description = "审批人uuid")
-    private String leaderId;
+    private String leaderUuid;
 
     @Schema(description = "驳回原因")
     private String reject;
 
-    @Schema(description = "状态 1提交 2驳回 3撤销 9未通过")
+    @Schema(description = "请假事由")
+    private String reason;
+
+    @Schema(description = "状态 1提交 4审批中 2通过 3撤销 9未通过")
     private Integer status;
 
     @Schema(description = "假删除 0删除 1保留")

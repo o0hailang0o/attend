@@ -37,8 +37,9 @@ class ApplyDaoTest {
         apply.setEndTime(LocalDateTime.now().plusHours(8));
         apply.setLength(BigDecimal.valueOf(8));
         apply.setApplyUserUuid("apply_user_uuid");
-        apply.setLeaderId("leader_uuid");
+        apply.setLeaderUuid("leader_uuid");
         apply.setReject("");
+        apply.setReason("test reason");
         apply.setStatus(1);
         apply.setCreateTime(LocalDateTime.now());
         applyDao.insert(apply);
@@ -62,8 +63,9 @@ class ApplyDaoTest {
         apply.setEndTime(LocalDateTime.now().plusHours(8));
         apply.setLength(BigDecimal.valueOf(8));
         apply.setApplyUserUuid("apply_user_uuid");
-        apply.setLeaderId("leader_uuid");
+        apply.setLeaderUuid("leader_uuid");
         apply.setReject("");
+        apply.setReason("test reason");
         apply.setStatus(1);
         apply.setCreateTime(LocalDateTime.now());
         int rows = applyDao.insert(apply);

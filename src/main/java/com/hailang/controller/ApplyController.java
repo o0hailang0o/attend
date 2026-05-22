@@ -30,7 +30,7 @@ public class ApplyController {
     @PostMapping
     public Result<Void> submit(@RequestBody ApplyReq req) {
         ApplyDTO dto = BeanUtils.copy(req, ApplyDTO.class);
-        dto.setLeaderId(req.getUserUuid());
+        dto.setLeaderUuid(req.getLeaderUuid());
         applyService.submit(dto);
         return ResultUtils.ok(null);
     }
@@ -57,7 +57,7 @@ public class ApplyController {
     @PutMapping
     public Result<Void> update(@RequestBody ApplyReq req) {
         ApplyDTO dto = BeanUtils.copy(req, ApplyDTO.class);
-        dto.setLeaderId(req.getUserUuid());
+        dto.setLeaderUuid(req.getLeaderUuid());
         applyService.update(dto);
         return ResultUtils.ok(null);
     }

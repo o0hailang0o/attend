@@ -34,10 +34,13 @@ public class ApplyResp {
     private String applyUserUuid;
 
     @Schema(description = "审批人uuid")
-    private String leaderId;
+    private String leaderUuid;
 
     @Schema(description = "驳回原因")
     private String reject;
+
+    @Schema(description = "请假事由")
+    private String reason;
 
     @Schema(description = "状态 1提交 2驳回 3撤销 9未通过")
     private Integer status;

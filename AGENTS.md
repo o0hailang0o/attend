@@ -53,16 +53,16 @@ DAO:        dto / entity 均可传入
 
 ## Database
 - MySQL at `192.168.31.100:3306/attend`, user `root` / `root123`.
-- Existing tables: `sys_user`, `rule`, `apply`, `approve`.
+- Existing tables: `sys_user`, `rule`, `apply`, `approve`, `dept`, `leader`, `position`.
 - `sys_user.account` is the login account field (note: spelling is `account`, not `account`).
 - `@TableName` explicitly set on every entity.
+- **开发新接口时请参考实际数据库表结构，而非 init.sql**（实际库表结构与 init.sql 可能存在差异）。
 
 ## Conventions
 - **Lombok**: `@Data` on entities/DTOs, `@RequiredArgsConstructor` on controllers.
 - **No tests, no CI, no linter, no typecheck** configured.
 - `Rule.desc` is a SQL reserved word — backtick-quoted (`\`desc\``) in XML.
 - Controller paths use camelCase (e.g. `/sysUser`).
-- DDL 建表脚本在 `src/main/resources/database/init.sql`。
 - 所有表统一以 `uuid` 作为业务主键，API 增删改查优先用 uuid 而非自增 id 定位记录。
 - Bean 复制统一用 `com.hailang.config.utils.BeanUtils`（基于 Jackson `convertValue`）。
 - 接口统一返回 `Result<T>`，成功用 `ResultUtils.ok(data)`，异常由 `GlobalExceptionHandler` 统一拦截返回 `ResultUtils.failed(msg)`。

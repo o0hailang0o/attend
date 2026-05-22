@@ -8,7 +8,7 @@ public class ApproveDTO {
     private String uuid;
     private String applyUuid;
     private Integer order;
-    private String leaderId;
+    private String leaderUuid;
     private String reject;
     private Integer status;
     private LocalDateTime createTime;

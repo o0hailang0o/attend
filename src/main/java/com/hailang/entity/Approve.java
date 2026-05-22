@@ -1,6 +1,7 @@
 package com.hailang.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,15 +24,16 @@ public class Approve {
     private String applyUuid;
 
     @Schema(description = "审批顺序")
+    @TableField("`order`")
     private Integer order;
 
     @Schema(description = "下一审批人")
-    private String leaderId;
+    private String leaderUuid;
 
     @Schema(description = "驳回原因")
     private String reject;
 
-    @Schema(description = "状态 9通过 3驳回 2未通过 1通过 0删除")
+    @Schema(description = "状态 0删除 3驳回 4待审批 5审批中 9审批完成")
     private Integer status;
 
     @Schema(description = "假删除 0删除 1保留")

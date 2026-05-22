@@ -17,7 +17,7 @@ public class ApproveResp {
     private Integer order;
 
     @Schema(description = "下一审批人")
-    private String leaderId;
+    private String leaderUuid;
 
     @Schema(description = "驳回原因")
     private String reject;

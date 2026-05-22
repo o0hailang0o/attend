@@ -23,6 +23,12 @@ public class ApplyReq {
     private LocalDateTime endTime;
     @Schema(description = "时长")
     private BigDecimal length;
+    @Schema(description = "请假事由")
+    private String reason;
+
     @Schema(description = "申请人uuid")
-    private String userUuid;
+    private String applyUserUuid;
+
+    @Schema(description = "审批人uuid")
+    private String leaderUuid;
 }

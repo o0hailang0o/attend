@@ -15,8 +15,9 @@ public class ApplyDTO {
     private LocalDateTime endTime;
     private BigDecimal length;
     private String applyUserUuid;
-    private String leaderId;
+    private String leaderUuid;
     private String reject;
+    private String reason;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

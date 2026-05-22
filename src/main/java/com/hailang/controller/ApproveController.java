@@ -23,10 +23,10 @@ public class ApproveController {
 
     @Operation(summary = "分页查询待审批列表")
     @GetMapping
-    public Result<IPage<ApproveResp>> list(@RequestParam String leaderId,
+    public Result<IPage<ApproveResp>> list(@RequestParam String leaderUuid,
                                             @RequestParam(defaultValue = "1") int page,
                                             @RequestParam(defaultValue = "10") int size) {
-        IPage<ApproveDTO> pageResult = approveService.listByApprover(leaderId, page, size);
+        IPage<ApproveDTO> pageResult = approveService.listByApprover(leaderUuid, page, size);
         IPage<ApproveResp> respPage = pageResult.convert(item -> BeanUtils.copy(item, ApproveResp.class));
         return ResultUtils.ok(respPage);
     }

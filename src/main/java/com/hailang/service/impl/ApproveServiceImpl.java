@@ -24,13 +24,13 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
     }
 
     @Override
-    public IPage<ApproveDTO> listByApprover(String leaderId, int page, int size) {
+    public IPage<ApproveDTO> listByApprover(String leaderUuid, int page, int size) {
         Page<Approve> pageParam = new Page<>(page, size);
         Page<Approve> result = baseMapper.selectPage(pageParam,
                 new LambdaQueryWrapper<Approve>()
-                        .eq(Approve::getLeaderId, leaderId)
+                        .eq(Approve::getLeaderUuid, leaderUuid)
                         .eq(Approve::getIsDelete, 1)
-                        .eq(Approve::getStatus, 0)
+                        .eq(Approve::getStatus, 4)
                         .orderByDesc(Approve::getCreateTime));
         return result.convert(item -> BeanUtils.copy(item, ApproveDTO.class));
     }
@@ -44,7 +44,7 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
         if (approve == null) {
             throw new RuntimeException("审批记录不存在");
         }
-        if (approve.getStatus() != 0) {
+        if (approve.getStatus() != 4) {
             throw new RuntimeException("审批已处理");
         }
 
@@ -53,10 +53,27 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
                         .eq(Approve::getUuid, approveUuid)
                         .set(Approve::getStatus, 1));
 
-        applyDao.update(null,
-                Wrappers.<Apply>lambdaUpdate()
-                        .eq(Apply::getUuid, approve.getApplyUuid())
-                        .set(Apply::getStatus, 2));
+        Approve next = baseMapper.selectOne(
+                new LambdaQueryWrapper<Approve>()
+                        .eq(Approve::getApplyUuid, approve.getApplyUuid())
+                        .eq(Approve::getOrder, approve.getOrder() + 1)
+                        .eq(Approve::getIsDelete, 1));
+
+        if (next != null) {
+            baseMapper.update(null,
+                    Wrappers.<Approve>lambdaUpdate()
+                            .eq(Approve::getUuid, next.getUuid())
+                            .set(Approve::getStatus, 4));
+            applyDao.update(null,
+                    Wrappers.<Apply>lambdaUpdate()
+                            .eq(Apply::getUuid, approve.getApplyUuid())
+                            .set(Apply::getStatus, 4));
+        } else {
+            applyDao.update(null,
+                    Wrappers.<Apply>lambdaUpdate()
+                            .eq(Apply::getUuid, approve.getApplyUuid())
+                            .set(Apply::getStatus, 9));
+        }
     }
 
     @Override
@@ -68,7 +85,7 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
         if (approve == null) {
             throw new RuntimeException("审批记录不存在");
         }
-        if (approve.getStatus() != 0) {
+        if (approve.getStatus() != 4) {
             throw new RuntimeException("审批已处理");
         }
 

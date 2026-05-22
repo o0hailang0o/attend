@@ -5,14 +5,21 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hailang.config.AuthContext;
 import com.hailang.config.utils.BeanUtils;
 import com.hailang.dao.ApplyDao;
+import com.hailang.dao.ApproveDao;
+import com.hailang.dao.LeaderDao;
 import com.hailang.entity.Apply;
+import com.hailang.entity.Approve;
+import com.hailang.entity.Leader;
+import com.hailang.entity.SysUser;
 import com.hailang.service.ApplyService;
 import com.hailang.service.RuleService;
 import com.hailang.service.dto.ApplyDTO;
 import com.hailang.service.dto.RuleDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,19 +32,51 @@ import java.util.UUID;
 public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements ApplyService {
 
     private final RuleService ruleService;
+    private final LeaderDao leaderDao;
+    private final ApproveDao approveDao;
 
-    public ApplyServiceImpl(RuleService ruleService) {
+    public ApplyServiceImpl(RuleService ruleService, LeaderDao leaderDao, ApproveDao approveDao) {
         this.ruleService = ruleService;
+        this.leaderDao = leaderDao;
+        this.approveDao = approveDao;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void submit(ApplyDTO dto) {
+        SysUser currentUser = AuthContext.getCurrentUser();
+        String applicantUuid = currentUser != null ? currentUser.getUuid() : null;
+
+        Leader leader = leaderDao.selectByLeaderUuid(dto.getLeaderUuid());
+
         Apply entity = BeanUtils.copy(dto, Apply.class);
         entity.setUuid(UUID.randomUUID().toString().replace("-", ""));
-        entity.setApplyUserUuid(dto.getLeaderId());
+        entity.setApplyUserUuid(applicantUuid);
         entity.setStatus(1);
         entity.setIsDelete(1);
         baseMapper.insert(entity);
+
+        if (leader != null && leader.getTree() != null && !leader.getTree().isEmpty() && !"-".equals(leader.getTree())) {
+            String tree = leader.getTree();
+            if (tree.startsWith("-")) tree = tree.substring(1);
+            if (tree.endsWith("-")) tree = tree.substring(0, tree.length() - 1);
+            String[] ids = tree.split("-");
+            int order = 1;
+            for (String idStr : ids) {
+                Leader approver = leaderDao.selectById(Long.parseLong(idStr));
+                if (approver != null) {
+                    Approve approve = new Approve();
+                    approve.setUuid(UUID.randomUUID().toString().replace("-", ""));
+                    approve.setApplyUuid(entity.getUuid());
+                    approve.setOrder(order);
+                    approve.setLeaderUuid(approver.getLeaderUuid());
+                    approve.setStatus(order == 1 ? 4 : 5);
+                    approve.setIsDelete(1);
+                    approveDao.insert(approve);
+                    order++;
+                }
+            }
+        }
     }
 
     @Override
@@ -85,7 +124,9 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
                         .set(Apply::getLengthType, dto.getLengthType())
                         .set(Apply::getStartTime, dto.getStartTime())
                         .set(Apply::getEndTime, dto.getEndTime())
-                        .set(Apply::getLength, dto.getLength()));
+                        .set(Apply::getLength, dto.getLength())
+                        .set(Apply::getReason, dto.getReason())
+                        .set(Apply::getLeaderUuid, dto.getLeaderUuid()));
     }
 
     @Override
