@@ -5,22 +5,57 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hailang.config.AuthContext;
 import com.hailang.config.utils.BeanUtils;
+import com.hailang.controller.resp.ApproveApplyResp;
+import com.hailang.controller.resp.WorkflowStepResp;
 import com.hailang.dao.ApplyDao;
 import com.hailang.dao.ApproveDao;
 import com.hailang.entity.Apply;
 import com.hailang.entity.Approve;
+import com.hailang.entity.SysUser;
 import com.hailang.service.ApproveService;
+import com.hailang.service.LeaveBalanceService;
 import com.hailang.service.dto.ApproveDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> implements ApproveService {
 
     private final ApplyDao applyDao;
+    private final LeaveBalanceService leaveBalanceService;
 
-    public ApproveServiceImpl(ApplyDao applyDao) {
+    public ApproveServiceImpl(ApplyDao applyDao, LeaveBalanceService leaveBalanceService) {
         this.applyDao = applyDao;
+        this.leaveBalanceService = leaveBalanceService;
+    }
+
+    @Override
+    public IPage<ApproveApplyResp> listMyApprove(int page, int size) {
+        SysUser currentUser = AuthContext.getCurrentUser();
+        if (currentUser == null) {
+            throw new RuntimeException("未登录");
+        }
+        Page<ApproveApplyResp> pageParam = new Page<>(page, size);
+        IPage<ApproveApplyResp> result = baseMapper.selectApproveApplyPage(pageParam, currentUser.getUuid());
+
+        List<String> applyUuids = result.getRecords().stream()
+                .map(ApproveApplyResp::getApplyUuid)
+                .collect(Collectors.toList());
+        if (!applyUuids.isEmpty()) {
+            List<WorkflowStepResp> steps = baseMapper.selectWorkflowByApplyUuids(applyUuids);
+            Map<String, List<WorkflowStepResp>> workflowMap = steps.stream()
+                    .collect(Collectors.groupingBy(WorkflowStepResp::getApplyUuid));
+            result.getRecords().forEach(r -> r.setWorkflow(workflowMap.get(r.getApplyUuid())));
+        }
+
+        return result;
     }
 
     @Override
@@ -36,6 +71,7 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void pass(String approveUuid) {
         Approve approve = baseMapper.selectOne(
                 new LambdaQueryWrapper<Approve>()
@@ -67,12 +103,25 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
             applyDao.update(null,
                     Wrappers.<Apply>lambdaUpdate()
                             .eq(Apply::getUuid, approve.getApplyUuid())
-                            .set(Apply::getStatus, 4));
+                            .set(Apply::getStatus, 5));
         } else {
             applyDao.update(null,
                     Wrappers.<Apply>lambdaUpdate()
                             .eq(Apply::getUuid, approve.getApplyUuid())
                             .set(Apply::getStatus, 9));
+
+            Apply apply = applyDao.selectOne(
+                    new LambdaQueryWrapper<Apply>()
+                            .eq(Apply::getUuid, approve.getApplyUuid())
+                            .eq(Apply::getIsDelete, 1));
+            if (apply != null && apply.getLength() != null
+                    && apply.getLength().compareTo(BigDecimal.ZERO) > 0) {
+                if (Integer.valueOf(1).equals(apply.getType())) {
+                    leaveBalanceService.deductAnnual(apply.getApplyUserUuid(), apply.getLength());
+                } else if (Integer.valueOf(4).equals(apply.getType())) {
+                    leaveBalanceService.deductComp(apply.getApplyUserUuid(), apply.getLength());
+                }
+            }
         }
     }
 
@@ -95,10 +144,17 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
                         .set(Approve::getStatus, 3)
                         .set(Approve::getReject, reject));
 
+        baseMapper.update(null,
+                Wrappers.<Approve>lambdaUpdate()
+                        .eq(Approve::getApplyUuid, approve.getApplyUuid())
+                        .in(Approve::getStatus, 4, 5)
+                        .ne(Approve::getUuid, approveUuid)
+                        .set(Approve::getStatus, 3));
+
         applyDao.update(null,
                 Wrappers.<Apply>lambdaUpdate()
                         .eq(Apply::getUuid, approve.getApplyUuid())
-                        .set(Apply::getStatus, 9)
+                        .set(Apply::getStatus, 3)
                         .set(Apply::getReject, reject));
     }
 }

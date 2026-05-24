@@ -5,6 +5,7 @@ import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
 import com.hailang.controller.req.ApproveReq;
+import com.hailang.controller.resp.ApproveApplyResp;
 import com.hailang.controller.resp.ApproveResp;
 import com.hailang.service.ApproveService;
 import com.hailang.service.dto.ApproveDTO;
@@ -21,7 +22,16 @@ public class ApproveController {
 
     private final ApproveService approveService;
 
-    @Operation(summary = "分页查询待审批列表")
+    @Operation(summary = "分页查询待审批列表（我的审批）")
+    @GetMapping("/my")
+    public Result<IPage<ApproveApplyResp>> listMy(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        IPage<ApproveApplyResp> pageResult = approveService.listMyApprove(page, size);
+        return ResultUtils.ok(pageResult);
+    }
+
+    @Operation(summary = "分页查询待审批列表（指定审批人）")
     @GetMapping
     public Result<IPage<ApproveResp>> list(@RequestParam String leaderUuid,
                                             @RequestParam(defaultValue = "1") int page,

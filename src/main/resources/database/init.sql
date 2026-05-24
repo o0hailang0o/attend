@@ -95,3 +95,16 @@ CREATE TABLE leader (
     level        INT(10)                                  COMMENT '级别',
     tree         VARCHAR(2000)                            COMMENT '审批链'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公司领导审批链';
+
+CREATE TABLE leave_balance (
+    id                     BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid                   VARCHAR(64)  NOT NULL UNIQUE              COMMENT '业务uuid',
+    user_uuid              VARCHAR(64)  NOT NULL                     COMMENT '用户uuid',
+    year                   INT(10)      NOT NULL                     COMMENT '年度',
+    annual_remaining_hours DECIMAL(5,1) NOT NULL DEFAULT 0           COMMENT '年假剩余小时数',
+    comp_remaining_hours   DECIMAL(5,1) NOT NULL DEFAULT 0           COMMENT '调休假剩余小时数',
+    is_delete              INT(10)      NOT NULL DEFAULT 1            COMMENT '假删除 0删除 1保留',
+    create_time            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time            TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    UNIQUE KEY uk_user_year (user_uuid, year)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='假期余额';

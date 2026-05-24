@@ -1,9 +1,11 @@
 package com.hailang.service.dto;
 
+import com.hailang.controller.resp.WorkflowStepResp;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ApplyDTO {
@@ -19,6 +21,8 @@ public class ApplyDTO {
     private String reject;
     private String reason;
     private Integer status;
+    private String statusName;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private List<WorkflowStepResp> workflow;
 }

@@ -35,6 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/sysuser/login",
+                        "/leaveBalance/byAccount",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/attend/**"

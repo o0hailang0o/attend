@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hailang.dao.DailyAttendanceDao">
+
+    <resultMap id="BaseResultMap" type="com.hailang.entity.DailyAttendance">
+        <id column="id" property="id"/>
+        <result column="uuid" property="uuid"/>
+        <result column="employee_uuid" property="employeeUuid"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="date" property="date"/>
+        <result column="clock_in" property="clockIn"/>
+        <result column="clock_out" property="clockOut"/>
+        <result column="actual_work_hours" property="actualWorkHours"/>
+        <result column="recognized_hours" property="recognizedHours"/>
+        <result column="leave_hours" property="leaveHours"/>
+        <result column="annual_leave_hours" property="annualLeaveHours"/>
+        <result column="comp_leave_hours" property="compLeaveHours"/>
+        <result column="day_type" property="dayType"/>
+        <result column="is_delete" property="isDelete"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, uuid, employee_uuid, employee_name, date, clock_in, clock_out,
+        actual_work_hours, recognized_hours, leave_hours,
+        annual_leave_hours, comp_leave_hours, day_type, is_delete
+    </sql>
+
+</mapper>

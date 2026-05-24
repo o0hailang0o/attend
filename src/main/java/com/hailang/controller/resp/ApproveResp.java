@@ -22,7 +22,7 @@ public class ApproveResp {
     @Schema(description = "驳回原因")
     private String reject;
 
-    @Schema(description = "状态 9通过 3驳回 2未通过 1通过 0删除")
+    @Schema(description = "状态 0删除 3驳回 4待审批 5审批中 1通过 9审批通过")
     private Integer status;
 
     @Schema(description = "创建时间")

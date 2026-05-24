@@ -16,6 +16,4 @@ public class ApplyCalcReq {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endTime;
 
-    @Schema(description = "考勤规则uuid")
-    private String ruleUuid;
 }

@@ -1,6 +1,8 @@
 package com.hailang.service;
 
+import com.hailang.dao.RuleDao;
 import com.hailang.service.dto.RuleDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +19,14 @@ class RuleServiceTest {
 
     @Autowired
     private RuleService ruleService;
+
+    @Autowired
+    private RuleDao ruleDao;
+
+    @BeforeEach
+    void setUp() {
+        ruleDao.delete(null);
+    }
 
     private RuleDTO validRule() {
         RuleDTO dto = new RuleDTO();

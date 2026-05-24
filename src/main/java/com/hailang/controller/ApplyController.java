@@ -1,9 +1,11 @@
 package com.hailang.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.hailang.config.AuthContext;
 import com.hailang.config.utils.BeanUtils;
 import com.hailang.config.utils.Result;
 import com.hailang.config.utils.ResultUtils;
+import com.hailang.entity.SysUser;
 import com.hailang.controller.req.ApplyCalcReq;
 import com.hailang.controller.req.ApplyListReq;
 import com.hailang.controller.req.ApplyReq;
@@ -79,7 +81,11 @@ public class ApplyController {
     @Operation(summary = "计算考勤时长")
     @PostMapping("/calc")
     public Result<BigDecimal> calculateLength(@RequestBody ApplyCalcReq req) {
-        BigDecimal length = applyService.calculateLength(req.getStartTime(), req.getEndTime(), req.getRuleUuid());
+        SysUser currentUser = AuthContext.getCurrentUser();
+        if (currentUser == null || currentUser.getRuleUuid() == null) {
+            return ResultUtils.failed("当前用户未配置考勤规则");
+        }
+        BigDecimal length = applyService.calculateLength(req.getStartTime(), req.getEndTime(), currentUser.getRuleUuid());
         return ResultUtils.ok(length);
     }
 }

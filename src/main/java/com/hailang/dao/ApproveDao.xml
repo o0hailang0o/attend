@@ -19,4 +19,63 @@
         id, uuid, apply_uuid, `order`, leader_uuid, reject, status, is_delete, create_time, update_time
     </sql>
 
+    <select id="selectApproveApplyPage" resultType="com.hailang.controller.resp.ApproveApplyResp">
+        SELECT
+            a.uuid AS approve_uuid,
+            a.apply_uuid,
+            a.`order`,
+            a.status AS approve_status,
+            CASE a.status
+                WHEN 0 THEN '删除'
+                WHEN 1 THEN '通过'
+                WHEN 3 THEN '驳回'
+                WHEN 4 THEN '待审批'
+                WHEN 5 THEN '审批中'
+                WHEN 9 THEN '审批通过'
+            END AS approve_status_name,
+            a.reject,
+            a.create_time,
+            ap.type,
+            ap.length_type,
+            ap.start_time,
+            ap.end_time,
+            ap.length,
+            ap.reason,
+            ap.apply_user_uuid,
+            su.name AS apply_user_name,
+            su.work_num AS apply_user_work_num
+        FROM approve a
+        JOIN apply ap ON a.apply_uuid = ap.uuid
+        LEFT JOIN sys_user su ON ap.apply_user_uuid = su.uuid
+        WHERE a.leader_uuid = #{leaderUuid}
+            AND a.is_delete = 1
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="selectWorkflowByApplyUuids" resultType="com.hailang.controller.resp.WorkflowStepResp">
+        SELECT
+            a.apply_uuid,
+            a.uuid AS approve_uuid,
+            a.leader_uuid,
+            l.leader_name AS leader_name,
+            a.`order`,
+            a.status,
+            CASE a.status
+                WHEN 0 THEN '删除'
+                WHEN 1 THEN '通过'
+                WHEN 3 THEN '驳回'
+                WHEN 4 THEN '待审批'
+                WHEN 5 THEN '审批中'
+                WHEN 9 THEN '审批通过'
+            END AS status_name
+        FROM approve a
+        LEFT JOIN leader l ON a.leader_uuid = l.leader_uuid
+        WHERE a.apply_uuid IN
+        <foreach collection="applyUuids" item="applyUuid" open="(" separator="," close=")">
+            #{applyUuid}
+        </foreach>
+        AND a.is_delete = 1
+        ORDER BY a.`order` ASC
+    </select>
+
 </mapper>

@@ -11,12 +11,15 @@ import com.hailang.dao.ApplyDao;
 import com.hailang.dao.ApproveDao;
 import com.hailang.dao.LeaderDao;
 import com.hailang.entity.Apply;
+import com.hailang.controller.resp.WorkflowStepResp;
 import com.hailang.entity.Approve;
 import com.hailang.entity.Leader;
 import com.hailang.entity.SysUser;
 import com.hailang.service.ApplyService;
+import com.hailang.service.LeaveBalanceService;
 import com.hailang.service.RuleService;
 import com.hailang.service.dto.ApplyDTO;
+import com.hailang.service.dto.LeaveBalanceDTO;
 import com.hailang.service.dto.RuleDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +29,11 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements ApplyService {
@@ -34,11 +41,14 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
     private final RuleService ruleService;
     private final LeaderDao leaderDao;
     private final ApproveDao approveDao;
+    private final LeaveBalanceService leaveBalanceService;
 
-    public ApplyServiceImpl(RuleService ruleService, LeaderDao leaderDao, ApproveDao approveDao) {
+    public ApplyServiceImpl(RuleService ruleService, LeaderDao leaderDao, ApproveDao approveDao,
+                            LeaveBalanceService leaveBalanceService) {
         this.ruleService = ruleService;
         this.leaderDao = leaderDao;
         this.approveDao = approveDao;
+        this.leaveBalanceService = leaveBalanceService;
     }
 
     @Override
@@ -46,6 +56,22 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
     public void submit(ApplyDTO dto) {
         SysUser currentUser = AuthContext.getCurrentUser();
         String applicantUuid = currentUser != null ? currentUser.getUuid() : null;
+
+        if (dto.getLength() != null && dto.getLength().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("时长必须大于0");
+        }
+
+        if (Integer.valueOf(1).equals(dto.getType())) {
+            LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
+            if (bal == null || bal.getAnnualRemainingHours().compareTo(dto.getLength()) < 0) {
+                throw new RuntimeException("年假余额不足");
+            }
+        } else if (Integer.valueOf(4).equals(dto.getType())) {
+            LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
+            if (bal == null || bal.getCompRemainingHours().compareTo(dto.getLength()) < 0) {
+                throw new RuntimeException("调休假余额不足");
+            }
+        }
 
         Leader leader = leaderDao.selectByLeaderUuid(dto.getLeaderUuid());
 
@@ -101,7 +127,32 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
                         .eq(Apply::getIsDelete, 1)
                         .orderByDesc(Apply::getCreateTime)
         );
-        return result.convert(item -> BeanUtils.copy(item, ApplyDTO.class));
+        IPage<ApplyDTO> dtoPage = result.convert(item -> {
+            ApplyDTO dto = BeanUtils.copy(item, ApplyDTO.class);
+            if (dto.getStatus() != null) {
+                switch (dto.getStatus()) {
+                    case 1: dto.setStatusName("提交"); break;
+                    case 2: dto.setStatusName("保存"); break;
+                    case 3: dto.setStatusName("驳回"); break;
+                    case 4: dto.setStatusName("待审批"); break;
+                    case 5: dto.setStatusName("审批中"); break;
+                    case 9: dto.setStatusName("审批通过"); break;
+                }
+            }
+            return dto;
+        });
+
+        List<String> applyUuids = dtoPage.getRecords().stream()
+                .map(ApplyDTO::getUuid)
+                .collect(Collectors.toList());
+        if (!applyUuids.isEmpty()) {
+            List<WorkflowStepResp> steps = approveDao.selectWorkflowByApplyUuids(applyUuids);
+            Map<String, List<WorkflowStepResp>> workflowMap = steps.stream()
+                    .collect(Collectors.groupingBy(WorkflowStepResp::getApplyUuid));
+            dtoPage.getRecords().forEach(r -> r.setWorkflow(workflowMap.get(r.getUuid())));
+        }
+
+        return dtoPage;
     }
 
     @Override
@@ -172,38 +223,33 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
             throw new RuntimeException("考勤规则不存在");
         }
 
-        BigDecimal totalHours = BigDecimal.ZERO;
+        long dailyMinutes = Duration.between(rule.getStartTime(), rule.getEndTime()).toMinutes();
+        if (Integer.valueOf(1).equals(rule.getMiddleRest()) && rule.getMiddleStart() != null && rule.getMiddleEnd() != null) {
+            dailyMinutes -= Duration.between(rule.getMiddleStart(), rule.getMiddleEnd()).toMinutes();
+        }
+
+        BigDecimal totalHours;
         LocalDate startDate = startTime.toLocalDate();
         LocalDate endDate = endTime.toLocalDate();
 
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            LocalDateTime dayStart = LocalDateTime.of(date, rule.getStartTime());
-            LocalDateTime dayEnd = LocalDateTime.of(date, rule.getEndTime());
-
-            LocalDateTime leaveStart = date.equals(startDate) ? startTime : dayStart;
-            LocalDateTime leaveEnd = date.equals(endDate) ? endTime : dayEnd;
-
-            LocalDateTime overlapStart = leaveStart.isBefore(dayStart) ? dayStart : leaveStart;
-            LocalDateTime overlapEnd = leaveEnd.isAfter(dayEnd) ? dayEnd : leaveEnd;
-
-            if (!overlapStart.isBefore(overlapEnd)) {
-                continue;
-            }
-
-            long minutes = Duration.between(overlapStart, overlapEnd).toMinutes();
-
-            if (Integer.valueOf(1).equals(rule.getMiddleRest())) {
+        if (startDate.equals(endDate)) {
+            long minutes = Duration.between(startTime, endTime).toMinutes();
+            if (Integer.valueOf(1).equals(rule.getMiddleRest()) && rule.getMiddleStart() != null && rule.getMiddleEnd() != null) {
+                LocalDate date = startDate;
                 LocalDateTime lunchStart = LocalDateTime.of(date, rule.getMiddleStart());
                 LocalDateTime lunchEnd = LocalDateTime.of(date, rule.getMiddleEnd());
-                LocalDateTime lunchOverlapStart = overlapStart.isBefore(lunchStart) ? lunchStart : overlapStart;
-                LocalDateTime lunchOverlapEnd = overlapEnd.isAfter(lunchEnd) ? lunchEnd : overlapEnd;
+                LocalDateTime lunchOverlapStart = startTime.isBefore(lunchStart) ? lunchStart : startTime;
+                LocalDateTime lunchOverlapEnd = endTime.isAfter(lunchEnd) ? lunchEnd : endTime;
                 if (lunchOverlapStart.isBefore(lunchOverlapEnd)) {
                     minutes -= Duration.between(lunchOverlapStart, lunchOverlapEnd).toMinutes();
                 }
             }
-
-            totalHours = totalHours.add(BigDecimal.valueOf(minutes)
-                    .divide(BigDecimal.valueOf(60), 10, RoundingMode.HALF_UP));
+            totalHours = BigDecimal.valueOf(minutes)
+                    .divide(BigDecimal.valueOf(60), 10, RoundingMode.HALF_UP);
+        } else {
+            long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            totalHours = BigDecimal.valueOf(dailyMinutes * days)
+                    .divide(BigDecimal.valueOf(60), 10, RoundingMode.HALF_UP);
         }
 
         if (rule.getAccuracy() != null) {

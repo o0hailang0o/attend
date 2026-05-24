@@ -1,5 +1,6 @@
 package com.hailang.service;
 
+import com.hailang.dao.RuleDao;
 import com.hailang.service.dto.RuleDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,12 +24,18 @@ class ApplyServiceTest {
     @Autowired
     private RuleService ruleService;
 
+    @Autowired
+    private RuleDao ruleDao;
+
     private String ruleWithLunchUuid;
     private String ruleNoLunchUuid;
     private String ruleAcc1Uuid;
+    private String ruleNightUuid;
 
     @BeforeEach
     void setUp() {
+        ruleDao.delete(null);
+
         RuleDTO r1 = new RuleDTO();
         r1.setName("标准规则");
         r1.setStartTime(LocalTime.of(9, 0));
@@ -59,6 +66,17 @@ class ApplyServiceTest {
         r3.setMiddleEnd(LocalTime.of(13, 0));
         r3.setAccuracy(BigDecimal.valueOf(1));
         ruleAcc1Uuid = ruleService.save(r3).getUuid();
+
+        RuleDTO r4 = new RuleDTO();
+        r4.setName("夜班规则");
+        r4.setStartTime(LocalTime.of(13, 0));
+        r4.setEndTime(LocalTime.of(22, 0));
+        r4.setFlexibility(0);
+        r4.setMiddleRest(1);
+        r4.setMiddleStart(LocalTime.of(18, 0));
+        r4.setMiddleEnd(LocalTime.of(19, 0));
+        r4.setAccuracy(BigDecimal.valueOf(0.5));
+        ruleNightUuid = ruleService.save(r4).getUuid();
     }
 
     @Test
@@ -107,21 +125,21 @@ class ApplyServiceTest {
     }
 
     @Test
-    void startBeforeWorkClamped() {
+    void startBeforeWorkSameDay() {
         BigDecimal result = applyService.calculateLength(
                 LocalDateTime.of(2024, 6, 3, 8, 0),
                 LocalDateTime.of(2024, 6, 3, 12, 0),
                 ruleWithLunchUuid);
-        assertEquals(0, BigDecimal.valueOf(3.0).compareTo(result));
+        assertEquals(0, BigDecimal.valueOf(4.0).compareTo(result));
     }
 
     @Test
-    void endAfterWorkClamped() {
+    void endAfterWorkSameDay() {
         BigDecimal result = applyService.calculateLength(
                 LocalDateTime.of(2024, 6, 3, 14, 0),
                 LocalDateTime.of(2024, 6, 3, 20, 0),
                 ruleWithLunchUuid);
-        assertEquals(0, BigDecimal.valueOf(4.0).compareTo(result));
+        assertEquals(0, BigDecimal.valueOf(6.0).compareTo(result));
     }
 
     @Test
@@ -176,6 +194,53 @@ class ApplyServiceTest {
                 LocalDateTime.of(2024, 6, 3, 11, 0),
                 LocalDateTime.of(2024, 6, 5, 15, 0),
                 ruleWithLunchUuid);
-        assertEquals(0, BigDecimal.valueOf(19.0).compareTo(result));
+        assertEquals(0, BigDecimal.valueOf(24.0).compareTo(result));
+    }
+
+    /* ───── 夜班 13:00-22:00 晚饭 18:00-19:00 ───── */
+
+    @Test
+    void nightFullDay() {
+        BigDecimal result = applyService.calculateLength(
+                LocalDateTime.of(2024, 6, 3, 13, 0),
+                LocalDateTime.of(2024, 6, 3, 22, 0),
+                ruleNightUuid);
+        assertEquals(0, BigDecimal.valueOf(8.0).compareTo(result));
+    }
+
+    @Test
+    void nightAfternoon() {
+        BigDecimal result = applyService.calculateLength(
+                LocalDateTime.of(2024, 6, 3, 13, 0),
+                LocalDateTime.of(2024, 6, 3, 18, 0),
+                ruleNightUuid);
+        assertEquals(0, BigDecimal.valueOf(5.0).compareTo(result));
+    }
+
+    @Test
+    void nightEvening() {
+        BigDecimal result = applyService.calculateLength(
+                LocalDateTime.of(2024, 6, 3, 19, 0),
+                LocalDateTime.of(2024, 6, 3, 22, 0),
+                ruleNightUuid);
+        assertEquals(0, BigDecimal.valueOf(3.0).compareTo(result));
+    }
+
+    @Test
+    void nightCrossDinner() {
+        BigDecimal result = applyService.calculateLength(
+                LocalDateTime.of(2024, 6, 3, 17, 0),
+                LocalDateTime.of(2024, 6, 3, 20, 0),
+                ruleNightUuid);
+        assertEquals(0, BigDecimal.valueOf(2.0).compareTo(result));
+    }
+
+    @Test
+    void nightMultiDay() {
+        BigDecimal result = applyService.calculateLength(
+                LocalDateTime.of(2024, 6, 3, 13, 0),
+                LocalDateTime.of(2024, 6, 5, 22, 0),
+                ruleNightUuid);
+        assertEquals(0, BigDecimal.valueOf(24.0).compareTo(result));
     }
 }
