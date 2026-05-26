@@ -16,13 +16,14 @@
         <result column="annual_leave_hours" property="annualLeaveHours"/>
         <result column="comp_leave_hours" property="compLeaveHours"/>
         <result column="day_type" property="dayType"/>
+        <result column="status" property="status"/>
         <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, uuid, employee_uuid, employee_name, date, clock_in, clock_out,
         actual_work_hours, recognized_hours, leave_hours,
-        annual_leave_hours, comp_leave_hours, day_type, is_delete
+        annual_leave_hours, comp_leave_hours, day_type, status, is_delete
     </sql>
 
 </mapper>

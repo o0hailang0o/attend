@@ -49,4 +49,7 @@ public class DailyAttendanceReq {
 
     @Schema(description = "日类型 1工作日 2休息日 3假日")
     private Integer dayType;
+
+    @Schema(description = "考勤状态 1正常 2迟到 3早退 4缺勤 5补正")
+    private Integer status;
 }

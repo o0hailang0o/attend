@@ -108,3 +108,15 @@ CREATE TABLE leave_balance (
     update_time            TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
     UNIQUE KEY uk_user_year (user_uuid, year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='假期余额';
+
+CREATE TABLE leave_type (
+    id             BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+    uuid           VARCHAR(64)  NOT NULL UNIQUE             COMMENT '业务uuid',
+    name           VARCHAR(32)  NOT NULL                    COMMENT '假期类型名称',
+    color          VARCHAR(16)  DEFAULT '#1890ff'           COMMENT '显示颜色',
+    sort_order     INT(10)      DEFAULT 0                   COMMENT '排序号',
+    deduct_balance INT(10)      DEFAULT 0                   COMMENT '是否扣减余额 0不扣 1扣减',
+    is_delete      INT(10)      NOT NULL DEFAULT 1           COMMENT '假删除 0删除 1保留',
+    create_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time    TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='假期类型';

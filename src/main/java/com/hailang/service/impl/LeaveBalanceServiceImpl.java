@@ -64,6 +64,19 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
+    public LeaveBalanceDTO getByUserUuid(String userUuid) {
+        LeaveBalance entity = leaveBalanceDao.selectOne(
+                new LambdaQueryWrapper<LeaveBalance>()
+                        .eq(LeaveBalance::getUserUuid, userUuid)
+                        .eq(LeaveBalance::getYear, LocalDate.now().getYear())
+                        .eq(LeaveBalance::getIsDelete, 1));
+        if (entity == null) {
+            return null;
+        }
+        return BeanUtils.copy(entity, LeaveBalanceDTO.class);
+    }
+
+    @Override
     public void deductAnnual(String userUuid, BigDecimal hours) {
         LeaveBalance entity = leaveBalanceDao.selectOne(
                 new LambdaQueryWrapper<LeaveBalance>()
@@ -93,5 +106,37 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 Wrappers.<LeaveBalance>lambdaUpdate()
                         .eq(LeaveBalance::getUuid, entity.getUuid())
                         .set(LeaveBalance::getCompRemainingHours, entity.getCompRemainingHours().subtract(hours)));
+    }
+
+    @Override
+    public void restoreAnnual(String userUuid, BigDecimal hours) {
+        LeaveBalance entity = leaveBalanceDao.selectOne(
+                new LambdaQueryWrapper<LeaveBalance>()
+                        .eq(LeaveBalance::getUserUuid, userUuid)
+                        .eq(LeaveBalance::getYear, LocalDate.now().getYear())
+                        .eq(LeaveBalance::getIsDelete, 1));
+        if (entity == null) {
+            return;
+        }
+        leaveBalanceDao.update(null,
+                Wrappers.<LeaveBalance>lambdaUpdate()
+                        .eq(LeaveBalance::getUuid, entity.getUuid())
+                        .set(LeaveBalance::getAnnualRemainingHours, entity.getAnnualRemainingHours().add(hours)));
+    }
+
+    @Override
+    public void restoreComp(String userUuid, BigDecimal hours) {
+        LeaveBalance entity = leaveBalanceDao.selectOne(
+                new LambdaQueryWrapper<LeaveBalance>()
+                        .eq(LeaveBalance::getUserUuid, userUuid)
+                        .eq(LeaveBalance::getYear, LocalDate.now().getYear())
+                        .eq(LeaveBalance::getIsDelete, 1));
+        if (entity == null) {
+            return;
+        }
+        leaveBalanceDao.update(null,
+                Wrappers.<LeaveBalance>lambdaUpdate()
+                        .eq(LeaveBalance::getUuid, entity.getUuid())
+                        .set(LeaveBalance::getCompRemainingHours, entity.getCompRemainingHours().add(hours)));
     }
 }

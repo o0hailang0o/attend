@@ -19,4 +19,5 @@ public class RuleDTO {
     private Integer vacation;
     private Integer comp;
     private BigDecimal accuracy;
+    private Integer overtimeApply;
 }

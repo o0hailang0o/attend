@@ -25,15 +25,40 @@ public class DailyAttendanceController {
 
     private final DailyAttendanceService dailyAttendanceService;
 
-    @Operation(summary = "根据日期和员工uuid查询每日考勤统计")
+    @Operation(summary = "根据日期和员工uuid查询每日考勤统计（支持日期范围）")
     @GetMapping
     public Result<List<DailyAttendanceResp>> query(
             @RequestParam(required = false) String employeeUuid,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        List<DailyAttendanceDTO> dtoList = dailyAttendanceService.queryByDateAndEmployee(employeeUuid, date);
+        List<DailyAttendanceDTO> dtoList;
+        if (date != null) {
+            dtoList = dailyAttendanceService.queryByDateAndEmployee(employeeUuid, date);
+        } else {
+            dtoList = dailyAttendanceService.queryByDateRange(employeeUuid, startDate, endDate);
+        }
         List<DailyAttendanceResp> respList = dtoList.stream()
                 .map(dto -> BeanUtils.copy(dto, DailyAttendanceResp.class))
                 .collect(Collectors.toList());
+        for (DailyAttendanceResp r : respList) {
+            if (r.getDayType() != null) {
+                switch (r.getDayType()) {
+                    case 1: r.setDayTypeName("工作日"); break;
+                    case 2: r.setDayTypeName("休息日"); break;
+                    case 3: r.setDayTypeName("假日"); break;
+                }
+            }
+            if (r.getStatus() != null) {
+                switch (r.getStatus()) {
+                    case 1: r.setStatusName("正常"); break;
+                    case 2: r.setStatusName("迟到"); break;
+                    case 3: r.setStatusName("早退"); break;
+                    case 4: r.setStatusName("缺勤"); break;
+                    case 5: r.setStatusName("补正"); break;
+                }
+            }
+        }
         return ResultUtils.ok(respList);
     }
 

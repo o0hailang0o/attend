@@ -21,4 +21,7 @@ public class DailyAttendanceDTO {
     private BigDecimal annualLeaveHours;
     private BigDecimal compLeaveHours;
     private Integer dayType;
+    private Integer status;
+    private String dayTypeName;
+    private String statusName;
 }

@@ -112,6 +112,25 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
     }
 
     @Override
+    public List<DailyAttendanceDTO> queryByDateRange(String employeeUuid, LocalDate startDate, LocalDate endDate) {
+        LambdaQueryWrapper<DailyAttendance> wrapper = Wrappers.<DailyAttendance>lambdaQuery()
+                .eq(DailyAttendance::getIsDelete, 1);
+        if (employeeUuid != null && !employeeUuid.isEmpty()) {
+            wrapper.eq(DailyAttendance::getEmployeeUuid, employeeUuid);
+        }
+        if (startDate != null) {
+            wrapper.ge(DailyAttendance::getDate, startDate);
+        }
+        if (endDate != null) {
+            wrapper.le(DailyAttendance::getDate, endDate);
+        }
+        wrapper.orderByAsc(DailyAttendance::getEmployeeUuid, DailyAttendance::getDate);
+        return dailyAttendanceDao.selectList(wrapper).stream()
+                .map(record -> BeanUtils.copy(record, DailyAttendanceDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public DailyAttendanceDTO getByUuid(String uuid) {
         DailyAttendance record = dailyAttendanceDao.selectByUuid(uuid);
         return record == null ? null : BeanUtils.copy(record, DailyAttendanceDTO.class);
@@ -176,7 +195,7 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
         List<Apply> approvedApplies = applyDao.selectList(
                 new LambdaQueryWrapper<Apply>()
                         .eq(Apply::getIsDelete, 1)
-                        .eq(Apply::getStatus, 2)
+                        .eq(Apply::getStatus, 9)
                         .le(Apply::getStartTime, endDate.atTime(LocalTime.MAX))
                         .ge(Apply::getEndTime, startDate.atTime(LocalTime.MIN))
                         .in(userUuid != null, Apply::getApplyUserUuid, userUuidList));
@@ -247,8 +266,16 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
                 da.setCompLeaveHours(compLeaveHours);
 
                 BigDecimal stdHours = calculateStdDailyHours(rule);
-                da.setRecognizedHours(BigDecimal.ZERO.max(stdHours.subtract(leaveHours))
-                        .setScale(1, RoundingMode.HALF_UP));
+                boolean noOvertimeApply = rule != null && Integer.valueOf(0).equals(rule.getOvertimeApply());
+                if (noOvertimeApply) {
+                    da.setRecognizedHours(BigDecimal.ZERO.max(da.getActualWorkHours().subtract(leaveHours))
+                            .setScale(1, RoundingMode.HALF_UP));
+                } else {
+                    da.setRecognizedHours(BigDecimal.ZERO.max(stdHours.subtract(leaveHours))
+                            .setScale(1, RoundingMode.HALF_UP));
+                }
+
+                da.setStatus(determineStatus(da, rule));
 
                 da.setIsDelete(1);
                 records.add(da);
@@ -289,6 +316,17 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
             return BigDecimal.ZERO;
         }
 
+        // 跨天请假：如果时间差小于8h，按实际时长计算；否则按8h计算
+        if (!applyStartDate.equals(applyEndDate)) {
+            long totalMinutes = Duration.between(apply.getStartTime(), apply.getEndTime()).toMinutes();
+            if (totalMinutes <= 480) { // 8h = 480min
+                return BigDecimal.valueOf(totalMinutes).divide(BigDecimal.valueOf(60), 1, RoundingMode.HALF_UP);
+            } else {
+                return BigDecimal.valueOf(8.0);
+            }
+        }
+
+        // 同一天请假，按精确时间计算
         LocalTime workStart = rule != null ? rule.getStartTime() : LocalTime.of(9, 0);
         LocalTime workEnd = rule != null ? rule.getEndTime() : LocalTime.of(18, 0);
 
@@ -328,5 +366,32 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
         }
 
         return hours;
+    }
+
+    private int determineStatus(DailyAttendance da, Rule rule) {
+        if (da.getDayType() != null && da.getDayType() >= 2) {
+            return 1;
+        }
+        if (da.getLeaveHours() != null && da.getLeaveHours().compareTo(BigDecimal.ZERO) > 0) {
+            return 5;
+        }
+        if (da.getClockIn() == null && da.getClockOut() == null) {
+            return 4;
+        }
+        if (rule != null && rule.getStartTime() != null && da.getClockIn() != null) {
+            LocalTime lateThreshold = rule.getStartTime();
+            if (rule.getFlexibility() != null && rule.getFlexibility() > 0) {
+                lateThreshold = lateThreshold.plusHours(rule.getFlexibility());
+            }
+            if (da.getClockIn().isAfter(lateThreshold)) {
+                return 2;
+            }
+        }
+        if (rule != null && rule.getEndTime() != null && da.getClockOut() != null) {
+            if (da.getClockOut().isBefore(rule.getEndTime())) {
+                return 3;
+            }
+        }
+        return 1;
     }
 }

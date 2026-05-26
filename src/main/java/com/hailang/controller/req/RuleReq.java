@@ -46,4 +46,7 @@ public class RuleReq {
 
     @Schema(description = "精确度0.5或1")
     private BigDecimal accuracy;
+
+    @Schema(description = "是否需要加班申请 1是(默认) 0否")
+    private Integer overtimeApply;
 }

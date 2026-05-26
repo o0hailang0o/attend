@@ -41,4 +41,14 @@ public class LeaveBalanceController {
         }
         return ResultUtils.ok(BeanUtils.copy(dto, LeaveBalanceResp.class));
     }
+
+    @Operation(summary = "根据用户uuid查询当年假期余额")
+    @GetMapping("/byUser")
+    public Result<LeaveBalanceResp> getByUserUuid(@RequestParam String userUuid) {
+        LeaveBalanceDTO dto = leaveBalanceService.getByUserUuid(userUuid);
+        if (dto == null) {
+            return ResultUtils.ok(null);
+        }
+        return ResultUtils.ok(BeanUtils.copy(dto, LeaveBalanceResp.class));
+    }
 }

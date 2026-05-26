@@ -66,11 +66,13 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
             if (bal == null || bal.getAnnualRemainingHours().compareTo(dto.getLength()) < 0) {
                 throw new RuntimeException("年假余额不足");
             }
+            leaveBalanceService.deductAnnual(applicantUuid, dto.getLength());
         } else if (Integer.valueOf(4).equals(dto.getType())) {
             LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
             if (bal == null || bal.getCompRemainingHours().compareTo(dto.getLength()) < 0) {
                 throw new RuntimeException("调休假余额不足");
             }
+            leaveBalanceService.deductComp(applicantUuid, dto.getLength());
         }
 
         Leader leader = leaderDao.selectByLeaderUuid(dto.getLeaderUuid());
@@ -189,13 +191,14 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         if (entity == null) {
             throw new RuntimeException("申请不存在");
         }
-        if (entity.getStatus() != 1) {
-            throw new RuntimeException("仅待审批状态的申请可以删除");
+        if (entity.getStatus() != 1 && entity.getStatus() != 3) {
+            throw new RuntimeException("仅待审批或已驳回的申请可以删除");
         }
         baseMapper.update(null,
                 Wrappers.<Apply>lambdaUpdate()
                         .eq(Apply::getUuid, uuid)
                         .set(Apply::getIsDelete, 0));
+        restoreBalanceIfNeeded(entity);
     }
 
     @Override
@@ -214,6 +217,19 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
                 Wrappers.<Apply>lambdaUpdate()
                         .eq(Apply::getUuid, uuid)
                         .set(Apply::getStatus, 3));
+        restoreBalanceIfNeeded(entity);
+    }
+
+    private void restoreBalanceIfNeeded(Apply entity) {
+        if (entity == null || entity.getLength() == null
+                || entity.getLength().compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+        if (Integer.valueOf(1).equals(entity.getType())) {
+            leaveBalanceService.restoreAnnual(entity.getApplyUserUuid(), entity.getLength());
+        } else if (Integer.valueOf(4).equals(entity.getType())) {
+            leaveBalanceService.restoreComp(entity.getApplyUserUuid(), entity.getLength());
+        }
     }
 
     @Override

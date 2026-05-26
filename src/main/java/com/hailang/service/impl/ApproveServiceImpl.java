@@ -15,12 +15,13 @@ import com.hailang.entity.Apply;
 import com.hailang.entity.Approve;
 import com.hailang.entity.SysUser;
 import com.hailang.service.ApproveService;
+import com.hailang.service.DailyAttendanceService;
 import com.hailang.service.LeaveBalanceService;
 import com.hailang.service.dto.ApproveDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,10 +31,13 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
 
     private final ApplyDao applyDao;
     private final LeaveBalanceService leaveBalanceService;
+    private final DailyAttendanceService dailyAttendanceService;
 
-    public ApproveServiceImpl(ApplyDao applyDao, LeaveBalanceService leaveBalanceService) {
+    public ApproveServiceImpl(ApplyDao applyDao, LeaveBalanceService leaveBalanceService,
+                              DailyAttendanceService dailyAttendanceService) {
         this.applyDao = applyDao;
         this.leaveBalanceService = leaveBalanceService;
+        this.dailyAttendanceService = dailyAttendanceService;
     }
 
     @Override
@@ -114,13 +118,11 @@ public class ApproveServiceImpl extends ServiceImpl<ApproveDao, Approve> impleme
                     new LambdaQueryWrapper<Apply>()
                             .eq(Apply::getUuid, approve.getApplyUuid())
                             .eq(Apply::getIsDelete, 1));
-            if (apply != null && apply.getLength() != null
-                    && apply.getLength().compareTo(BigDecimal.ZERO) > 0) {
-                if (Integer.valueOf(1).equals(apply.getType())) {
-                    leaveBalanceService.deductAnnual(apply.getApplyUserUuid(), apply.getLength());
-                } else if (Integer.valueOf(4).equals(apply.getType())) {
-                    leaveBalanceService.deductComp(apply.getApplyUserUuid(), apply.getLength());
-                }
+            if (apply != null && apply.getStartTime() != null && apply.getEndTime() != null
+                    && apply.getApplyUserUuid() != null) {
+                LocalDate startDate = apply.getStartTime().toLocalDate();
+                LocalDate endDate = apply.getEndTime().toLocalDate();
+                dailyAttendanceService.calculate(startDate, endDate, apply.getApplyUserUuid());
             }
         }
     }
