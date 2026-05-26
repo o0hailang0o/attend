@@ -14,12 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
-import org.springframework.test.context.web.ServletTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -33,13 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@TestExecutionListeners(value = {
-        ServletTestExecutionListener.class,
-        DirtiesContextBeforeModesTestExecutionListener.class,
-        DependencyInjectionTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class,
-        TransactionalTestExecutionListener.class
-})
 class DailyAttendanceServiceTest {
 
     @Autowired
@@ -164,6 +151,7 @@ class DailyAttendanceServiceTest {
         assertEquals(0, BigDecimal.valueOf(8.0).compareTo(da.getRecognizedHours()));
         assertEquals(0, BigDecimal.ZERO.compareTo(da.getLeaveHours()));
         assertEquals(1, da.getDayType());
+        assertEquals(1, da.getStatus());
     }
 
     @Test
@@ -177,6 +165,7 @@ class DailyAttendanceServiceTest {
         assertNull(da.getClockOut());
         assertEquals(0, BigDecimal.ZERO.compareTo(da.getActualWorkHours()));
         assertEquals(0, BigDecimal.valueOf(8.0).compareTo(da.getRecognizedHours()));
+        assertEquals(4, da.getStatus());
     }
 
     @Test
@@ -193,6 +182,7 @@ class DailyAttendanceServiceTest {
         assertEquals(0, BigDecimal.valueOf(8.0).compareTo(da.getAnnualLeaveHours()));
         assertEquals(0, BigDecimal.ZERO.compareTo(da.getCompLeaveHours()));
         assertEquals(0, BigDecimal.ZERO.compareTo(da.getRecognizedHours()));
+        assertEquals(5, da.getStatus());
     }
 
     @Test
@@ -468,5 +458,103 @@ class DailyAttendanceServiceTest {
 
         DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
         assertEquals(0, BigDecimal.ZERO.compareTo(da.getLeaveHours()));
+    }
+
+    @Test
+    void statusLate() {
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(9, 5), 0);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, userUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(2, da.getStatus());
+    }
+
+    @Test
+    void statusEarlyLeave() {
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(8, 55), 0);
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(17, 55), 1);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, userUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(3, da.getStatus());
+    }
+
+    @Test
+    void statusLateTakesPriorityOverEarlyLeave() {
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(9, 10), 0);
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(17, 30), 1);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, userUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(2, da.getStatus());
+    }
+
+    @Test
+    void statusNormalWithFlexibility() {
+        Rule flexRule = new Rule();
+        flexRule.setUuid(UUID.randomUUID().toString().replace("-", ""));
+        flexRule.setName("弹性规则");
+        flexRule.setStartTime(LocalTime.of(9, 0));
+        flexRule.setEndTime(LocalTime.of(18, 0));
+        flexRule.setFlexibility(1);
+        flexRule.setMiddleRest(0);
+        flexRule.setAccuracy(BigDecimal.valueOf(0.5));
+        flexRule.setIsDelete(1);
+        ruleDao.insert(flexRule);
+
+        String flexUserUuid = insertUser("弹性用户", flexRule.getUuid());
+
+        insertDoorAccess(flexUserUuid, DAY1, LocalTime.of(9, 30), 0);
+        insertDoorAccess(flexUserUuid, DAY1, LocalTime.of(18, 0), 1);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, flexUserUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(1, da.getStatus());
+    }
+
+    @Test
+    void overtimeNoApplyUsesActualWorkHours() {
+        Rule noOvertimeRule = new Rule();
+        noOvertimeRule.setUuid(UUID.randomUUID().toString().replace("-", ""));
+        noOvertimeRule.setName("无需加班申请规则");
+        noOvertimeRule.setStartTime(LocalTime.of(9, 0));
+        noOvertimeRule.setEndTime(LocalTime.of(18, 0));
+        noOvertimeRule.setFlexibility(0);
+        noOvertimeRule.setMiddleRest(1);
+        noOvertimeRule.setMiddleStart(LocalTime.of(12, 0));
+        noOvertimeRule.setMiddleEnd(LocalTime.of(13, 0));
+        noOvertimeRule.setVacation(1);
+        noOvertimeRule.setComp(1);
+        noOvertimeRule.setAccuracy(BigDecimal.valueOf(0.5));
+        noOvertimeRule.setOvertimeApply(0);
+        noOvertimeRule.setIsDelete(1);
+        ruleDao.insert(noOvertimeRule);
+
+        String noOvertimeUserUuid = insertUser("加班不申请", noOvertimeRule.getUuid());
+
+        insertDoorAccess(noOvertimeUserUuid, DAY1, LocalTime.of(8, 0), 0);
+        insertDoorAccess(noOvertimeUserUuid, DAY1, LocalTime.of(20, 0), 1);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, noOvertimeUserUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(0, BigDecimal.valueOf(12.0).compareTo(da.getActualWorkHours()));
+        assertEquals(0, BigDecimal.valueOf(12.0).compareTo(da.getRecognizedHours()));
+    }
+
+    @Test
+    void overtimeApplyDefaultsToStdHours() {
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(8, 0), 0);
+        insertDoorAccess(userUuid, DAY1, LocalTime.of(20, 0), 1);
+
+        dailyAttendanceService.calculate(DAY1, DAY1, userUuid);
+
+        DailyAttendance da = dailyAttendanceDao.selectList(null).get(0);
+        assertEquals(0, BigDecimal.valueOf(12.0).compareTo(da.getActualWorkHours()));
+        assertEquals(0, BigDecimal.valueOf(8.0).compareTo(da.getRecognizedHours()));
     }
 }
