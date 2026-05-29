@@ -6,8 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("door_access")
@@ -35,11 +34,8 @@ public class DoorAccess {
     @Schema(description = "进出 0进 1出")
     private Integer direction;
 
-    @Schema(description = "通行时间")
-    private LocalTime accessTime;
-
-    @Schema(description = "通行日期")
-    private LocalDate accessDate;
+    @Schema(description = "通行日期时间")
+    private LocalDateTime accessDatetime;
 
     @Schema(description = "假删除 0删除 1保留")
     private Integer isDelete;

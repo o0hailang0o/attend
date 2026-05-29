@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,7 +30,8 @@ public class DoorAccessServiceImpl implements DoorAccessService {
             wrapper.eq(DoorAccess::getEmployeeUuid, employeeUuid);
         }
         if (date != null) {
-            wrapper.eq(DoorAccess::getAccessDate, date);
+            wrapper.ge(DoorAccess::getAccessDatetime, date.atStartOfDay())
+                    .lt(DoorAccess::getAccessDatetime, date.plusDays(1).atStartOfDay());
         }
         return doorAccessDao.selectList(wrapper).stream()
                 .map(record -> BeanUtils.copy(record, DoorAccessDTO.class))

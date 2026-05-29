@@ -166,7 +166,7 @@ class LeaveBalanceFlowTest {
         ApplyDTO annualDto = new ApplyDTO();
         annualDto.setType(1);
         annualDto.setLength(BigDecimal.valueOf(8));
-        annualDto.setMonth(LocalDateTime.of(LocalDate.now().getYear(), 5, 1, 0, 0));
+        annualDto.setMonth(LocalDate.of(LocalDate.now().getYear(), 5, 1));
         annualDto.setStartTime(LocalDateTime.now());
         annualDto.setEndTime(LocalDateTime.now().plusHours(8));
         annualDto.setLeaderUuid(treeLeaderUuid);
@@ -197,7 +197,7 @@ class LeaveBalanceFlowTest {
         ApplyDTO dto = new ApplyDTO();
         dto.setType(4);
         dto.setLength(BigDecimal.valueOf(4));
-        dto.setMonth(LocalDateTime.of(LocalDate.now().getYear(), 5, 2, 0, 0));
+        dto.setMonth(LocalDate.of(LocalDate.now().getYear(), 5, 2));
         dto.setStartTime(LocalDateTime.now().plusDays(1));
         dto.setEndTime(LocalDateTime.now().plusDays(1).plusHours(4));
         dto.setLeaderUuid(treeLeaderUuid);

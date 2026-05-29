@@ -50,7 +50,7 @@ public class ApplyController {
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
         IPage<ApplyDTO> pageResult = applyService.listByUser(req.getUserUuid(),
-                req.getMonth() != null ? req.getMonth().atStartOfDay() : null, page, size);
+                req.getMonth(), page, size);
         IPage<ApplyResp> respPage = pageResult.convert(item -> BeanUtils.copy(item, ApplyResp.class));
         return ResultUtils.ok(respPage);
     }

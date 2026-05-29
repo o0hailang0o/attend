@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "门禁记录响应")
@@ -31,11 +30,7 @@ public class DoorAccessResp {
     @Schema(description = "进出 0进 1出")
     private Integer direction;
 
-    @Schema(description = "通行时间")
-    @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime accessTime;
-
-    @Schema(description = "通行日期")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate accessDate;
+    @Schema(description = "通行日期时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime accessDatetime;
 }

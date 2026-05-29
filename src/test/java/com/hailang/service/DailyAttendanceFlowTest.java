@@ -180,7 +180,7 @@ class DailyAttendanceFlowTest {
         ApplyDTO annualDto = new ApplyDTO();
         annualDto.setType(1);
         annualDto.setLength(BigDecimal.valueOf(8));
-        annualDto.setMonth(LocalDateTime.of(2026, 5, 1, 0, 0));
+        annualDto.setMonth(LocalDate.of(2026, 5, 1));
         annualDto.setStartTime(LocalDateTime.of(2026, 5, 13, 9, 0));
         annualDto.setEndTime(LocalDateTime.of(2026, 5, 13, 18, 0));
         annualDto.setLeaderUuid(treeLeaderUuid);
@@ -195,7 +195,7 @@ class DailyAttendanceFlowTest {
         ApplyDTO compDto = new ApplyDTO();
         compDto.setType(4);
         compDto.setLength(BigDecimal.valueOf(5));
-        compDto.setMonth(LocalDateTime.of(2026, 5, 1, 0, 0));
+        compDto.setMonth(LocalDate.of(2026, 5, 1));
         compDto.setStartTime(LocalDateTime.of(2026, 5, 14, 13, 0));
         compDto.setEndTime(LocalDateTime.of(2026, 5, 14, 18, 0));
         compDto.setLeaderUuid(treeLeaderUuid);
@@ -304,8 +304,7 @@ class DailyAttendanceFlowTest {
         da.setWorkNum("001");
         da.setDoorNo("A001");
         da.setDirection(0);
-        da.setAccessDate(date);
-        da.setAccessTime(time);
+        da.setAccessDatetime(LocalDateTime.of(date, time));
         da.setIsDelete(1);
         doorAccessDao.insert(da);
     }
@@ -349,7 +348,7 @@ class DailyAttendanceFlowTest {
         ApplyDTO annualDto = new ApplyDTO();
         annualDto.setType(1);
         annualDto.setLength(BigDecimal.valueOf(14));  // 总时长14h（周五4h + 周一3h）
-        annualDto.setMonth(LocalDateTime.of(2026, 5, 1, 0, 0));
+        annualDto.setMonth(LocalDate.of(2026, 5, 1));
         annualDto.setStartTime(LocalDateTime.of(2026, 5, 15, 14, 0));
         annualDto.setEndTime(LocalDateTime.of(2026, 5, 18, 12, 0));
         annualDto.setLeaderUuid(treeLeaderUuid);
@@ -448,7 +447,7 @@ class DailyAttendanceFlowTest {
         ApplyDTO dto = new ApplyDTO();
         dto.setType(5);
         dto.setLength(BigDecimal.valueOf(80));
-        dto.setMonth(LocalDateTime.of(2026, 6, 1, 0, 0));
+        dto.setMonth(LocalDate.of(2026, 6, 1));
         dto.setStartTime(LocalDateTime.of(2026, 6, 1, 9, 0));
         dto.setEndTime(LocalDateTime.of(2026, 6, 10, 18, 0));
         dto.setLeaderUuid(treeLeaderUuid);
@@ -521,7 +520,7 @@ class DailyAttendanceFlowTest {
             ApplyDTO dto = new ApplyDTO();
             dto.setType(type);
             dto.setLength(BigDecimal.valueOf(8));
-            dto.setMonth(LocalDateTime.of(2026, 6, 1, 0, 0));
+            dto.setMonth(LocalDate.of(2026, 6, 1));
             dto.setStartTime(LocalDateTime.of(2026, 6, day, 9, 0));
             dto.setEndTime(LocalDateTime.of(2026, 6, day, 18, 0));
             dto.setLeaderUuid(treeLeaderUuid);

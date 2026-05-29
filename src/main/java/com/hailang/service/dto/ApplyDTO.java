@@ -4,13 +4,14 @@ import com.hailang.controller.resp.WorkflowStepResp;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class ApplyDTO {
     private String uuid;
-    private LocalDateTime month;
+    private LocalDate month;
     private Integer type;
     private Integer lengthType;
     private LocalDateTime startTime;

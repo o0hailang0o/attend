@@ -83,7 +83,7 @@ class ApplyServiceBalanceTest {
         ApplyDTO dto = new ApplyDTO();
         dto.setType(type);
         dto.setLength(BigDecimal.valueOf(hours));
-        dto.setMonth(LocalDateTime.of(2025, 5, 1, 0, 0));
+        dto.setMonth(LocalDate.of(2025, 5, 1));
         dto.setStartTime(LocalDateTime.now());
         dto.setEndTime(LocalDateTime.now().plusHours(1));
         dto.setLeaderUuid(leaderUuid);

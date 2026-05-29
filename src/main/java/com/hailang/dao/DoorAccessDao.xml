@@ -10,13 +10,12 @@
         <result column="work_num" property="workNum"/>
         <result column="door_no" property="doorNo"/>
         <result column="direction" property="direction"/>
-        <result column="access_time" property="accessTime"/>
-        <result column="access_date" property="accessDate"/>
+        <result column="access_datetime" property="accessDatetime"/>
         <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, uuid, employee_uuid, employee_name, work_num, door_no, direction, access_time, access_date, is_delete
+        id, uuid, employee_uuid, employee_name, work_num, door_no, direction, access_datetime, is_delete
     </sql>
 
 </mapper>

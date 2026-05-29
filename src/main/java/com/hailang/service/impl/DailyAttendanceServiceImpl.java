@@ -184,13 +184,13 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
         List<DoorAccess> allAccesses = doorAccessDao.selectList(
                 new LambdaQueryWrapper<DoorAccess>()
                         .eq(DoorAccess::getIsDelete, 1)
-                        .ge(DoorAccess::getAccessDate, startDate)
-                        .le(DoorAccess::getAccessDate, endDate)
+                        .ge(DoorAccess::getAccessDatetime, startDate.atStartOfDay())
+                        .lt(DoorAccess::getAccessDatetime, endDate.plusDays(1).atStartOfDay())
                         .in(userUuid != null, DoorAccess::getEmployeeUuid, userUuidList));
 
         Map<String, Map<LocalDate, List<DoorAccess>>> accessMap = allAccesses.stream()
                 .collect(Collectors.groupingBy(DoorAccess::getEmployeeUuid,
-                        Collectors.groupingBy(DoorAccess::getAccessDate)));
+                        Collectors.groupingBy(da -> da.getAccessDatetime().toLocalDate())));
 
         List<Apply> approvedApplies = applyDao.selectList(
                 new LambdaQueryWrapper<Apply>()
@@ -231,9 +231,9 @@ public class DailyAttendanceServiceImpl implements DailyAttendanceService {
 
                 List<DoorAccess> accesses = userAccessMap.getOrDefault(date, Collections.emptyList());
                 if (!accesses.isEmpty()) {
-                    LocalTime clockIn = accesses.stream().map(DoorAccess::getAccessTime)
+                    LocalTime clockIn = accesses.stream().map(a -> a.getAccessDatetime().toLocalTime())
                             .min(LocalTime::compareTo).orElse(null);
-                    LocalTime clockOut = accesses.stream().map(DoorAccess::getAccessTime)
+                    LocalTime clockOut = accesses.stream().map(a -> a.getAccessDatetime().toLocalTime())
                             .max(LocalTime::compareTo).orElse(null);
                     da.setClockIn(clockIn);
                     da.setClockOut(clockOut);

@@ -57,19 +57,34 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         SysUser currentUser = AuthContext.getCurrentUser();
         String applicantUuid = currentUser != null ? currentUser.getUuid() : null;
 
-        if (dto.getLength() != null && dto.getLength().compareTo(BigDecimal.ZERO) <= 0) {
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
+            throw new RuntimeException("开始时间和结束时间不能为空");
+        }
+        if (dto.getStartTime().isAfter(dto.getEndTime())) {
+            throw new RuntimeException("开始时间不能晚于结束时间");
+        }
+        if (dto.getStartTime().getYear() != dto.getEndTime().getYear()
+                || dto.getStartTime().getMonth() != dto.getEndTime().getMonth()) {
+            throw new RuntimeException("开始时间和结束时间不允许跨月");
+        }
+
+        if (currentUser == null || currentUser.getRuleUuid() == null) {
+            throw new RuntimeException("当前用户未配置考勤规则");
+        }
+        dto.setLength(calculateLength(dto.getStartTime(), dto.getEndTime(), currentUser.getRuleUuid()));
+        if (dto.getLength().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("时长必须大于0");
         }
 
         if (Integer.valueOf(1).equals(dto.getType())) {
             LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
-            if (bal == null || bal.getAnnualRemainingHours().compareTo(dto.getLength()) < 0) {
+            if (bal == null || bal.getAnnualRemainingHours() == null || bal.getAnnualRemainingHours().compareTo(dto.getLength()) < 0) {
                 throw new RuntimeException("年假余额不足");
             }
             leaveBalanceService.deductAnnual(applicantUuid, dto.getLength());
         } else if (Integer.valueOf(4).equals(dto.getType())) {
             LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
-            if (bal == null || bal.getCompRemainingHours().compareTo(dto.getLength()) < 0) {
+            if (bal == null || bal.getCompRemainingHours() == null || bal.getCompRemainingHours().compareTo(dto.getLength()) < 0) {
                 throw new RuntimeException("调休假余额不足");
             }
             leaveBalanceService.deductComp(applicantUuid, dto.getLength());
@@ -120,7 +135,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
     }
 
     @Override
-    public IPage<ApplyDTO> listByUser(String userUuid, LocalDateTime month, int page, int size) {
+    public IPage<ApplyDTO> listByUser(String userUuid, LocalDate month, int page, int size) {
         Page<Apply> pageParam = new Page<>(page, size);
         Page<Apply> result = baseMapper.selectPage(pageParam,
                 new LambdaQueryWrapper<Apply>()
@@ -216,7 +231,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         baseMapper.update(null,
                 Wrappers.<Apply>lambdaUpdate()
                         .eq(Apply::getUuid, uuid)
-                        .set(Apply::getStatus, 3));
+                        .set(Apply::getIsDelete, 0));
         restoreBalanceIfNeeded(entity);
     }
 
@@ -269,7 +284,7 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         }
 
         if (rule.getAccuracy() != null) {
-            totalHours = totalHours.divide(rule.getAccuracy(), 0, RoundingMode.FLOOR)
+            totalHours = totalHours.divide(rule.getAccuracy(), 0, RoundingMode.CEILING)
                     .multiply(rule.getAccuracy());
         }
 

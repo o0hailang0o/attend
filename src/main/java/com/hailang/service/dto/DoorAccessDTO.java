@@ -2,8 +2,7 @@ package com.hailang.service.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 public class DoorAccessDTO {
@@ -14,6 +13,5 @@ public class DoorAccessDTO {
     private String workNum;
     private String doorNo;
     private Integer direction;
-    private LocalTime accessTime;
-    private LocalDate accessDate;
+    private LocalDateTime accessDatetime;
 }

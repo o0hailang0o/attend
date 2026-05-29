@@ -107,8 +107,7 @@ class DailyAttendanceServiceTest {
         da.setEmployeeName("测试");
         da.setWorkNum("001");
         da.setDoorNo("D001");
-        da.setAccessDate(date);
-        da.setAccessTime(time);
+        da.setAccessDatetime(LocalDateTime.of(date, time));
         da.setDirection(direction);
         da.setIsDelete(1);
         doorAccessDao.insert(da);
@@ -118,7 +117,7 @@ class DailyAttendanceServiceTest {
         Apply apply = new Apply();
         String uuid = UUID.randomUUID().toString().replace("-", "");
         apply.setUuid(uuid);
-        apply.setMonth(start);
+        apply.setMonth(start.toLocalDate());
         apply.setType(type);
         apply.setLengthType(1);
         apply.setStartTime(start);
@@ -319,7 +318,7 @@ class DailyAttendanceServiceTest {
         Apply notApproved = new Apply();
         String uuid = UUID.randomUUID().toString().replace("-", "");
         notApproved.setUuid(uuid);
-        notApproved.setMonth(LocalDateTime.of(DAY1, LocalTime.of(9, 0)));
+        notApproved.setMonth(DAY1);
         notApproved.setType(1);
         notApproved.setLengthType(1);
         notApproved.setStartTime(LocalDateTime.of(DAY1, LocalTime.of(9, 0)));
@@ -440,7 +439,7 @@ class DailyAttendanceServiceTest {
         for (int s : statuses) {
             Apply a = new Apply();
             a.setUuid(UUID.randomUUID().toString().replace("-", ""));
-            a.setMonth(LocalDateTime.of(DAY1, LocalTime.of(9, 0)));
+            a.setMonth(DAY1);
             a.setType(1);
             a.setLengthType(1);
             a.setStartTime(LocalDateTime.of(DAY1, LocalTime.of(9, 0)));

@@ -3,7 +3,7 @@ package com.hailang.controller.req;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +12,7 @@ public class ApplyReq {
     @Schema(description = "申请uuid（编辑时必填）")
     private String uuid;
     @Schema(description = "申请月份")
-    private LocalDateTime month;
+    private LocalDate month;
     @Schema(description = "申请类型")
     private Integer type;
     @Schema(description = "请假时间类型")
@@ -21,8 +21,6 @@ public class ApplyReq {
     private LocalDateTime startTime;
     @Schema(description = "结束时间")
     private LocalDateTime endTime;
-    @Schema(description = "时长")
-    private BigDecimal length;
     @Schema(description = "请假事由")
     private String reason;
 

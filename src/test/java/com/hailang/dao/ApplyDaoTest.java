@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +31,7 @@ class ApplyDaoTest {
         Apply apply = new Apply();
         testUuid = UUID.randomUUID().toString().replace("-", "");
         apply.setUuid(testUuid);
-        apply.setMonth(LocalDateTime.now());
+        apply.setMonth(LocalDate.now());
         apply.setType(1);
         apply.setLengthType(1);
         apply.setStartTime(LocalDateTime.now());
@@ -56,7 +57,7 @@ class ApplyDaoTest {
     void testInsert() {
         Apply apply = new Apply();
         apply.setUuid(UUID.randomUUID().toString().replace("-", ""));
-        apply.setMonth(LocalDateTime.now());
+        apply.setMonth(LocalDate.now());
         apply.setType(1);
         apply.setLengthType(1);
         apply.setStartTime(LocalDateTime.now());
