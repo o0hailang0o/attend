@@ -184,6 +184,11 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
         if (entity.getStatus() != 1) {
             throw new RuntimeException("仅待审批状态的申请可以编辑");
         }
+
+        Integer newType = dto.getType() != null ? dto.getType() : entity.getType();
+        BigDecimal newLength = dto.getLength() != null ? dto.getLength() : entity.getLength();
+        validateBalanceOnUpdate(newType, newLength, entity.getType(), entity.getLength());
+
         baseMapper.update(null,
                 Wrappers.<Apply>lambdaUpdate()
                         .eq(Apply::getUuid, dto.getUuid())
@@ -195,6 +200,36 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyDao, Apply> implements Ap
                         .set(Apply::getLength, dto.getLength())
                         .set(Apply::getReason, dto.getReason())
                         .set(Apply::getLeaderUuid, dto.getLeaderUuid()));
+    }
+
+    private void validateBalanceOnUpdate(Integer newType, BigDecimal newLength,
+                                          Integer oldType, BigDecimal oldLength) {
+        if (newLength == null || newLength.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+        if (!Integer.valueOf(1).equals(newType) && !Integer.valueOf(4).equals(newType)) {
+            return;
+        }
+        LeaveBalanceDTO bal = leaveBalanceService.getCurrent();
+        if (bal == null) {
+            throw new RuntimeException("假期余额记录不存在");
+        }
+
+        BigDecimal needed = newLength;
+        if (newType.equals(oldType) && oldLength != null && oldLength.compareTo(BigDecimal.ZERO) > 0) {
+            needed = newLength.subtract(oldLength);
+            if (needed.compareTo(BigDecimal.ZERO) <= 0) {
+                return;
+            }
+        }
+
+        BigDecimal remaining = Integer.valueOf(1).equals(newType)
+                ? bal.getAnnualRemainingHours() : bal.getCompRemainingHours();
+
+        if (remaining == null || remaining.compareTo(needed) < 0) {
+            String msg = Integer.valueOf(1).equals(newType) ? "年假余额不足" : "调休假余额不足";
+            throw new RuntimeException(msg);
+        }
     }
 
     @Override
